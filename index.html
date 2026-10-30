@@ -112,7 +112,7 @@ async function showStops(lat,lon){
  nearbyResults.textContent='Haltestellen werden gesucht …';
  const q=`[out:json][timeout:18];(node(around:1800,${lat},${lon})[highway=bus_stop];node(around:1800,${lat},${lon})[railway=station];node(around:1800,${lat},${lon})[railway=halt];node(around:1800,${lat},${lon})[public_transport=platform];);out body;`;
  let data, lastError;
- for(const server of ['https://overpass.private.coffee/api/interpreter','https://overpass-api.de/api/interpreter']){
+ for(const server of ['https://overpass-api.de/api/interpreter','https://overpass.kumi.systems/api/interpreter']){
   try{data=await jsonFetch(server,{method:'POST',body:new URLSearchParams({data:q})},24000);break}catch(e){lastError=e}
  }
  if(!data)throw lastError;
@@ -126,12 +126,12 @@ nearbyButton.addEventListener('click',()=>{
  if(!window.isSecureContext){nearbyResults.textContent='GPS ist in lokal geöffneten HTML-Dateien oft gesperrt. Bitte die Ortssuche darunter verwenden oder die Datei über HTTPS bereitstellen.';return}
  if(!navigator.geolocation){nearbyResults.textContent='Standortabfrage nicht unterstützt. Bitte Ortssuche verwenden.';return}
  nearbyButton.disabled=true;nearbyResults.textContent='Standort wird ermittelt …';
- navigator.geolocation.getCurrentPosition(async pos=>{try{await showStops(pos.coords.latitude,pos.coords.longitude)}catch(e){nearbyResults.textContent='Haltestellenserver nicht erreichbar ('+e.message+'). Bitte später erneut versuchen.'}finally{nearbyButton.disabled=false}},err=>{nearbyButton.disabled=false;nearbyResults.textContent='GPS nicht verfügbar ('+err.message+'). Nutze die Ortssuche ohne GPS.'},{enableHighAccuracy:false,timeout:12000,maximumAge:120000});
+ navigator.geolocation.getCurrentPosition(async pos=>{try{await showStops(pos.coords.latitude,pos.coords.longitude)}catch(e){nearbyResults.textContent='Haltestellenserver antwortet nicht ('+(e.name==='AbortError'?'Zeitüberschreitung':e.message)+'). Bitte erneut versuchen.'}finally{nearbyButton.disabled=false}},err=>{nearbyButton.disabled=false;nearbyResults.textContent='GPS nicht verfügbar ('+err.message+'). Nutze die Ortssuche ohne GPS.'},{enableHighAccuracy:false,timeout:12000,maximumAge:120000});
 });
 document.getElementById('nearbyManual').addEventListener('click',async()=>{
  const town=document.getElementById('nearbyTown').value.trim();if(town.length<2){nearbyResults.textContent='Bitte einen Ort eingeben.';return}
  const btn=document.getElementById('nearbyManual');btn.disabled=true;nearbyResults.textContent='Ort wird gesucht …';
- try{const matches=await jsonFetch('https://nominatim.openstreetmap.org/search?'+new URLSearchParams({q:town+', Vorarlberg, Österreich',format:'json',limit:'1'}));if(!matches.length)throw Error('Ort nicht gefunden');await showStops(Number(matches[0].lat),Number(matches[0].lon))}catch(e){nearbyResults.textContent='Ortssuche fehlgeschlagen: '+e.message+'. Internetverbindung prüfen.'}finally{btn.disabled=false}
+ try{const matches=await jsonFetch('https://nominatim.openstreetmap.org/search?'+new URLSearchParams({q:town+', Vorarlberg, Österreich',format:'json',limit:'1'}),{},22000);if(!matches.length)throw Error('Ort nicht gefunden');await showStops(Number(matches[0].lat),Number(matches[0].lon))}catch(e){nearbyResults.textContent='Haltestellensuche derzeit nicht erreichbar ('+(e.name==='AbortError'?'Server-Zeitüberschreitung':e.message)+'). Bitte erneut versuchen oder einen anderen Ort eingeben.'}finally{btn.disabled=false}
 });
 
 // Zusätzliche Monatskarten-/Überlappungsansicht; verwendet dieselben Ortslisten wie der Rechner.
@@ -164,7 +164,7 @@ $('liveSearch').addEventListener('click',async()=>{
  const from=$('liveFrom').value.trim(),to=$('liveTo').value.trim(),status=$('liveStatus'),out=$('liveResults');
  if(!from||!to){status.textContent='Bitte Start und Ziel eingeben.';return}
  if(from.toLowerCase()===to.toLowerCase()){status.textContent='Start und Ziel müssen unterschiedlich sein.';return}
- const btn=$('liveSearch');btn.disabled=true;status.textContent='Fahrplanverbindungen werden abgefragt …';out.innerHTML='';
+ const btn=$('liveSearch');btn.disabled=true;status.textContent='Fahrplanverbindungen werden abgefragt …';out.innerHTML='<p><a href="https://fahrplan.oebb.at/webapp/" target="_blank" rel="noopener">Zuverlässige österreichische Fahrplanauskunft (ÖBB Scotty) öffnen</a></p>';
  try{
  const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),16000);
  let data;try{const url='https://transport.opendata.ch/v1/connections?'+new URLSearchParams({from,to,limit:'5'});const r=await fetch(url,{signal:controller.signal});if(!r.ok)throw Error('HTTP '+r.status);data=await r.json()}finally{clearTimeout(timer)}
@@ -173,7 +173,7 @@ $('liveSearch').addEventListener('click',async()=>{
  const time=v=>{if(!v)return '–';const d=new Date(v);return Number.isNaN(d.getTime())?'–':d.toLocaleTimeString('de-AT',{hour:'2-digit',minute:'2-digit',timeZone:'Europe/Vienna'})};
  out.innerHTML=list.map(c=>'<div class="live-result"><b>'+time(c.from?.departure)+' → '+time(c.to?.arrival)+'</b><p class="live-meta">'+(c.sections||[]).map(s=>s.journey?esc((s.journey.category||'')+' '+(s.journey.number||'')+' Richtung '+(s.journey.to||'')):'Fußweg').join(' · ')+'</p><details><summary>Fahrtabschnitte anzeigen</summary>'+(c.sections||[]).map(s=>'<p>'+esc(s.departure?.station?.name||'Start')+' ('+time(s.departure?.departure)+') → '+esc(s.arrival?.station?.name||'Ziel')+' ('+time(s.arrival?.arrival)+')</p>').join('')+'</details></div>').join('');
  status.textContent=list.length+' Verbindung(en) gefunden. Datenabdeckung und Tarifgültigkeit bitte getrennt prüfen.';
- }catch(e){status.textContent='Fahrplanabfrage fehlgeschlagen ('+(e.name==='AbortError'?'Zeitüberschreitung':e.message)+'). Diese Schnittstelle ist für Vorarlberg nicht vollständig geeignet. Für verlässliche Ergebnisse wird eine VAO-Anbindung benötigt.'}
+ }catch(e){status.innerHTML='Die externe Test-Schnittstelle ist nicht erreichbar ('+(e.name==='AbortError'?'Zeitüberschreitung':e.message)+'). Bitte <a href="https://fahrplan.oebb.at/webapp/" target="_blank" rel="noopener">ÖBB Scotty für Bus- und Zugverbindungen verwenden</a>.'}
  finally{btn.disabled=false}
 });
 })();
