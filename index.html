@@ -177,17 +177,32 @@ renderOverlaps();
 (function(){
 const $=id=>document.getElementById(id);
 $('copyStart').addEventListener('click',()=>{$('liveFrom').value=$('from').value;$('liveTo').value=$('to').value;$('liveStatus').textContent='Start und Ziel übernommen.'});
-$('liveSearch').addEventListener('click',()=>{
+$('liveSearch').addEventListener('click',async()=>{
  const from=$('liveFrom').value.trim(),to=$('liveTo').value.trim(),status=$('liveStatus'),out=$('liveResults');
  if(!from||!to){status.textContent='Bitte Start und Ziel eingeben.';return}
  if(from.toLowerCase()===to.toLowerCase()){status.textContent='Start und Ziel müssen unterschiedlich sein.';return}
- // Scotty station descriptors: station names are handed over; Scotty may require selecting an exact stop.
- const params=new URLSearchParams({SID:'A=1@O='+from+'@',ZID:'A=1@O='+to+'@',context:'TP',start:'1',journeyProducts:'7167'});
- const url='https://fahrplan.oebb.at/webapp/?'+params.toString();
- status.textContent='ÖBB Scotty wird mit Start und Ziel geöffnet. Falls Scotty eine Haltestelle nicht eindeutig erkennt, bitte dort auswählen.';
- out.innerHTML='<p><a id="scottyRetry" target="_blank" rel="noopener">ÖBB Scotty mit Start und Ziel öffnen</a></p>';
- $('scottyRetry').href=url;
- window.location.href=url;
+ const btn=$('liveSearch');btn.disabled=true;status.textContent='Haltestellen werden für Scotty zugeordnet …';
+ try{
+  const r=await fetch('./stops.json',{cache:'no-store'});if(!r.ok)throw Error('Haltestellenliste nicht erreichbar');
+  const data=await r.json(),stops=data.stops||[];
+  const normalize=v=>v.toLocaleLowerCase('de-AT').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,' ').trim();
+  function locate(name){
+   const q=normalize(name);
+   const exact=stops.filter(x=>normalize(x.name)===q);
+   const matches=exact.length?exact:stops.filter(x=>normalize(x.name).includes(q)&&q.length>=5);
+   return matches.length===1?matches[0]:null;
+  }
+  const fs=locate(from),ts=locate(to);
+  const descriptor=(name,stop)=>stop?'A=1@O='+stop.name+'@X='+Math.round(stop.lon*1e6)+'@Y='+Math.round(stop.lat*1e6)+'@U=81@':'A=1@O='+name+'@';
+  const params=new URLSearchParams({SID:descriptor(from,fs),ZID:descriptor(to,ts),context:'TP',start:'1',journeyProducts:'7167'});
+  const url='https://fahrplan.oebb.at/webapp/?'+params.toString();
+  out.innerHTML='';
+  const p=document.createElement('p'),link=document.createElement('a');link.href=url;link.target='_blank';link.rel='noopener';link.textContent='ÖBB Scotty mit dieser Strecke öffnen';p.appendChild(link);out.appendChild(p);
+  const note=document.createElement('p');note.className='small';note.textContent='Zuordnung: Start '+(fs?'gefunden':'nicht eindeutig')+', Ziel '+(ts?'gefunden':'nicht eindeutig')+'. Bei Öffnung in der Scotty-App kann die App die Web-Übergabe ignorieren.';out.appendChild(note);
+  const copy=document.createElement('button');copy.type='button';copy.textContent='Start und Ziel kopieren';copy.onclick=async()=>{try{await navigator.clipboard.writeText(from+' → '+to);status.textContent='Strecke kopiert.'}catch(e){status.textContent='Kopieren nicht möglich.'}};out.appendChild(copy);
+  status.textContent='Scotty-Link vorbereitet. Bitte auf „ÖBB Scotty mit dieser Strecke öffnen“ tippen.';
+ }catch(e){status.textContent='Haltestellen konnten nicht zugeordnet werden: '+e.message+'. Bitte Scotty direkt öffnen.'}
+ finally{btn.disabled=false}
 });
 })();
 </script></html>
