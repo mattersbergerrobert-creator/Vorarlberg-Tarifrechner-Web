@@ -183,17 +183,7 @@ $('liveSearch').addEventListener('click',async()=>{
  if(from.toLowerCase()===to.toLowerCase()){status.textContent='Start und Ziel müssen unterschiedlich sein.';return}
  const btn=$('liveSearch');btn.disabled=true;status.textContent='Haltestellen werden für Scotty zugeordnet …';
  try{
-  const r=await fetch('./stops.json',{cache:'no-store'});if(!r.ok)throw Error('Haltestellenliste nicht erreichbar');
-  const data=await r.json(),stops=data.stops||[];
-  const normalize=v=>v.toLocaleLowerCase('de-AT').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,' ').trim();
-  function locate(name){
-   const q=normalize(name);
-   const exact=stops.filter(x=>normalize(x.name)===q);
-   const matches=exact.length?exact:stops.filter(x=>normalize(x.name).includes(q)&&q.length>=5);
-   return matches.length===1?matches[0]:null;
-  }
-  const fs=locate(from),ts=locate(to);
-  let ids={};try{const ir=await fetch('./scotty-stops.json',{cache:'no-store'});if(ir.ok)ids=await ir.json()}catch(e){}
+   let ids={};try{const ir=await fetch('./scotty-stops.json',{cache:'no-store'});if(ir.ok)ids=await ir.json()}catch(e){}
   const official=name=>{const q=normalize(name);return Object.values(ids).find(x=>normalize(x.name)===q&&x.id)||null};
   const resolve=name=>{
    const direct=official(name);if(direct)return direct;
@@ -206,8 +196,11 @@ $('liveSearch').addEventListener('click',async()=>{
   };
   const fi=resolve(from),ti=resolve(to);
   if(!fi||!ti){
-   status.textContent='Scotty-Kennungen für diese Strecke noch nicht verfügbar. Keine automatische Übergabe möglich.';
-   out.innerHTML='<p>Die Haltestellen sind in unserer Karte vorhanden, aber Scotty benötigt eigene Kennungen. <a href="https://fahrplan.oebb.at/webapp/" target="_blank" rel="noopener">Scotty manuell öffnen</a>.</p>';
+   status.textContent='Nicht alle Haltestellen haben eine offizielle Scotty-Kennung. Du kannst trotzdem Scotty öffnen.';
+   out.replaceChildren();
+   const p=document.createElement('p');p.textContent='Für diese Haltestellen ist keine sichere automatische Übergabe möglich. In Scotty bitte Start „'+from+'“ und Ziel „'+to+'“ eingeben.';out.append(p);
+   const link=document.createElement('a');link.href='https://fahrplan.oebb.at/webapp/';link.target='_blank';link.rel='noopener';link.textContent='ÖBB Scotty öffnen';out.append(link);
+   const copy=document.createElement('button');copy.type='button';copy.textContent='Start und Ziel kopieren';copy.onclick=async()=>{try{await navigator.clipboard.writeText(from+' → '+to);status.textContent='Strecke kopiert.'}catch(e){status.textContent='Kopieren nicht möglich.'}};out.append(copy);
    return;
   }
   const descriptor=x=>x.lid||('A=1@O='+x.name+'@L='+x.id+'@');
@@ -227,12 +220,19 @@ $('liveSearch').addEventListener('click',async()=>{
 const $=id=>document.getElementById(id);
 const norm=s=>String(s||'').toLocaleLowerCase('de-AT').normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim();
 let allStops=[];
-fetch('./stops.json').then(r=>r.json()).then(d=>{
+const suggestionList=$('all-stops');
+function showSuggestions(query){
+ const q=norm(query);suggestionList.replaceChildren();
+ if(q.length<2)return;
+ const found=allStops.filter(name=>norm(name).includes(q)).slice(0,35);
+ const fragment=document.createDocumentFragment();
+ found.forEach(name=>{const option=document.createElement('option');option.value=name;fragment.append(option)});
+ suggestionList.append(fragment);
+}
+['liveFrom','liveTo','quickDestination'].forEach(id=>$(id).addEventListener('input',e=>showSuggestions(e.target.value)));
+fetch('./stops.json').then(r=>{if(!r.ok)throw Error('HTTP '+r.status);return r.json()}).then(d=>{
  allStops=[...new Set((d.stops||[]).map(x=>x.name).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'de'));
- const list=$('all-stops');const frag=document.createDocumentFragment();
- for(const name of allStops){const o=document.createElement('option');o.value=name;frag.appendChild(o)}
- list.appendChild(frag);
-}).catch(()=>{$('quickMessage').textContent='Haltestellen-Vorschläge derzeit nicht verfügbar.'});
+}).catch(()=>{$('quickMessage').textContent='Haltestellen-Vorschläge derzeit nicht verfügbar. Du kannst die Haltestelle trotzdem eingeben.'});
 function saved(){try{return JSON.parse(localStorage.getItem('vbg-favorites')||'[]')}catch(e){return []}}
 function renderFavorites(){const sel=$('favRoutes');sel.replaceChildren(new Option('Strecke auswählen',''));saved().forEach((x,i)=>sel.add(new Option(x.from+' → '+x.to,String(i))))}
 renderFavorites();
@@ -275,7 +275,7 @@ $('quickAuto').addEventListener('click',async()=>{
   const msg=$('quickMessage');msg.replaceChildren();
   msg.append(document.createTextNode('Nächste Haltestelle: '+nearest.name+' (ca. '+Math.round(nearest.km*1000)+' m Luftlinie). '));
   const link=document.createElement('a');link.href=maps;link.target='_blank';link.rel='noopener';link.textContent='Fußweg in Google Maps öffnen';msg.append(link);
-  $('liveSearch').click();$('livefahrplan').scrollIntoView({behavior:'smooth'});
+  $('liveSearch').click();msg.scrollIntoView({behavior:'smooth',block:'center'});
  }catch(e){$('quickMessage').textContent='Standortsuche fehlgeschlagen: '+e.message+'. Du kannst eine Haltestelle manuell auswählen.'}
  finally{button.disabled=false}
 });
