@@ -116,7 +116,7 @@ async function showStops(lat,lon){
   if(response.ok){
    const dataset=await response.json();
    if(Array.isArray(dataset.stops)&&dataset.stops.length>100){
-    const stops=dataset.stops.map(x=>({name:x.name,dist:distanceKm(lat,lon,Number(x.lat),Number(x.lon))})).filter(x=>Number.isFinite(x.dist)).sort((a,b)=>a.dist-b.dist);
+    const stops=dataset.stops.map(x=>({name:x.name,lat:Number(x.lat),lon:Number(x.lon),dist:distanceKm(lat,lon,Number(x.lat),Number(x.lon))})).filter(x=>Number.isFinite(x.dist)).sort((a,b)=>a.dist-b.dist);
     const unique=[],seen=new Set();
     for(const stop of stops){const key=norm(stop.name);if(!seen.has(key)){unique.push(stop);seen.add(key)}if(unique.length>=12)break}
     nearbyResults.innerHTML='<p><b>Nächste Haltestellen (gespeicherte Kartendaten)</b></p>'+unique.map((x,i)=>'<div class="stop"><b>'+safe(x.name)+'</b><span>'+Math.round(x.dist*1000)+' m entfernt</span><br><button type="button" data-local-stop="'+i+'">Als Start übernehmen</button></div>').join('');
