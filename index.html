@@ -383,14 +383,15 @@ $('liveSearch').addEventListener('click',async()=>{
    const copy=document.createElement('button');copy.type='button';copy.textContent='Start und Ziel kopieren';copy.onclick=async()=>{try{await navigator.clipboard.writeText(from+' → '+to);status.textContent='Strecke kopiert.'}catch(e){status.textContent='Kopieren nicht möglich.'}};out.append(copy);
    return;
   }
-  const descriptor=x=>x.lid||('A=1@O='+x.name+'@L='+x.id+'@');
-  const params=new URLSearchParams({SID:descriptor(fi),ZID:descriptor(ti),context:'TP',start:'1',journeyProducts:'7167'});
+  const descriptor=x=>{const d=x.lid||('A=1@O='+x.name+'@L='+x.id+'@');return d.replace(/@p=\\d+@/,'@')};
+  const now=new Date(),date=[String(now.getDate()).padStart(2,'0'),String(now.getMonth()+1).padStart(2,'0'),now.getFullYear()].join('.'),time=[String(now.getHours()).padStart(2,'0'),String(now.getMinutes()).padStart(2,'0'),'00'].join(':');
+   const params=new URLSearchParams({SID:descriptor(fi),ZID:descriptor(ti),context:'TP',date,time,timeSel:'1',returnTimeSel:'1',start:'1',journeyProducts:'7167'});
   const url='https://fahrplan.oebb.at/webapp/?'+params.toString();
   out.innerHTML='';
   const p=document.createElement('p'),link=document.createElement('a');link.href=url;link.target='_blank';link.rel='noopener';link.textContent='ÖBB Scotty mit dieser Strecke öffnen';p.appendChild(link);out.appendChild(p);
   const note=document.createElement('p');note.className='small';note.textContent='Zuordnung: Start '+(fi?'Scotty-ID gefunden':'keine Scotty-ID')+', Ziel '+(ti?'Scotty-ID gefunden':'keine Scotty-ID')+'. Bei Öffnung in der Scotty-App kann die App die Web-Übergabe ignorieren.';out.appendChild(note);
   const copy=document.createElement('button');copy.type='button';copy.textContent='Start und Ziel kopieren';copy.onclick=async()=>{try{await navigator.clipboard.writeText(from+' → '+to);status.textContent='Strecke kopiert.'}catch(e){status.textContent='Kopieren nicht möglich.'}};out.appendChild(copy);
-  status.textContent='Beide Haltestellen erkannt. Scotty wird geöffnet. Falls nicht, bitte auf den Link tippen.';window.open(url,'_blank','noopener');
+  status.textContent='Scotty-Link mit Datum, Uhrzeit und beiden Haltestellen vorbereitet. Bitte auf den Link tippen.';
  }catch(e){status.textContent='Haltestellen konnten nicht zugeordnet werden: '+e.message+'. Bitte Scotty direkt öffnen.'}
  finally{btn.disabled=false}
 });
