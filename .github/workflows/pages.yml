@@ -2,7 +2,10 @@ name: Website (GitHub Pages)
 on:
   push:
     branches: [main]
-    paths: ['index.html', '.github/workflows/pages.yml']
+    paths: ['index.html', 'stops.json', '.github/workflows/pages.yml']
+  workflow_run:
+    workflows: ['Vorarlberg Haltestellen zwischenspeichern']
+    types: [completed]
   workflow_dispatch:
 permissions:
   contents: read
