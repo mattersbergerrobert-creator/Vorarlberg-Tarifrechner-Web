@@ -342,7 +342,7 @@ overlapSearch.addEventListener('input',renderOverlaps);
 renderOverlaps();
 </script><script>
 (function(){const sel=document.getElementById('verified-route-select'),out=document.getElementById('verified-route-output');if(!sel||!out)return;const routes={andel:'<b>✓ Offiziell bestätigtes Tarifbeispiel</b><p>VMOBIL nennt ausdrücklich: Mit einem <b>REGIO-2-Ticket (Vorderwald)</b> kannst du von <b>Andelsbuch nach Bregenz</b>, mit dem Zug weiter nach <b>Dornbirn</b> und zurück nach Andelsbuch fahren, solange die zeitliche Gültigkeit passt. Bregenz und Dornbirn fungieren hier als Überlappungsorte.</p><p><b>Monatskarte:</b> Eine REGIO-2-Monatskarte bietet innerhalb ihres gültigen REGIO-2-Bereichs zeitlich unbegrenzte Fahrten im Gültigkeitsmonat. <b>Nicht</b> automatisch ganz REGIO 3 oder REGIO 4.</p><small>Quelle: Land Vorarlberg, Medieninformation vom 24.03.2026 zur neuen Tarifwelt.</small>',laut:'<b>◷ Route noch einzeln zu prüfen</b><p><b>Lauterach → Dornbirn</b> ist als mögliche REGIO-3-Verbindung in den hinterlegten Ortslisten erfasst. Ob <b>jede konkrete Bus- oder Bahnroute</b> und die gewünschten Zwischenstopps abgedeckt sind, muss anhand des offiziellen Tariffinders und des Zonenverzeichnisses bestätigt werden.</p><p><b>Wichtig:</b> Die Überlappung von Lauterach oder Dornbirn mit anderen REGIO-Zonen bedeutet nicht, dass du deren gesamtes Gebiet nutzen darfst.</p>',feld:'<b>✓ Offiziell bestätigtes LOKAL-Beispiel</b><p>Das Land Vorarlberg nennt <b>Feldkirch → Klaus</b> ausdrücklich als Fahrt innerhalb der erweiterten <b>LOKAL-Zone Feldkirch</b>. Das ist ein Beispiel dafür, dass sich ein günstigeres LOKAL-Ticket lohnen kann.</p><p><b>Wichtig:</b> Das ist ein LOKAL-Beispiel und kein Nachweis dafür, dass jede REGIO-Monatskarte auf beliebigen Wegen zwischen diesen Orten gilt.</p><small>Quelle: Land Vorarlberg, Medieninformation vom 24.03.2026.</small>'};function render(){out.innerHTML=routes[sel.value]}sel.addEventListener('change',render);render()})();
-</script><script>(function(){const c=document.getElementById('copyStart');if(c)c.addEventListener('click',()=>{document.getElementById('liveFrom').value=document.getElementById('from').value;document.getElementById('liveTo').value=document.getElementById('to').value})})();</script><script>
+</script><script>
 (function(){
 const $=id=>document.getElementById(id);
 const norm=s=>String(s||'').toLocaleLowerCase('de-AT').normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim();
@@ -414,7 +414,7 @@ $('quickAuto').addEventListener('click',async()=>{
    const maps='https://www.google.com/maps/dir/?api=1&origin='+encodeURIComponent(lat+','+lon)+'&destination='+encodeURIComponent(stop.lat+','+stop.lon)+'&travelmode=walking';
    msg.replaceChildren(document.createTextNode('Start: '+stop.name+' (ca. '+Math.round(stop.km*1000)+' m Luftlinie). '));
    const link=document.createElement('a');link.href=maps;link.target='_blank';link.rel='noopener';link.textContent='🚶 Fußweg in Google Maps öffnen';msg.append(link);
-   $('liveSearch').click();
+   $('quickMessage').textContent='Bitte den neuen Reiseplaner oben verwenden. Die alte Scotty-Übergabe ist nicht verfügbar.';
   }
   const heading=document.createElement('p');heading.textContent='Einstiegshaltestelle auswählen (die nächste ist nicht immer die beste Verbindung):';choices.append(heading);
   unique.forEach((stop,i)=>{
@@ -574,4 +574,30 @@ $('openDepartures').addEventListener('click',()=>{
  }
  ['save-zone','save-rides','save-days','save-months','save-group'].forEach(id=>$(id).addEventListener('input',calc));calc();
  [['save-to-zones','zonen'],['save-to-family','sondertarife'],['save-to-buy','ticketkauf']].forEach(([id,area])=>$(id).addEventListener('click',()=>{location.hash='bereich-'+area}));
-})();</script></html>
+})();</script><script>
+(function(){
+const $=id=>document.getElementById(id),from=$('journeyStart'),to=$('journeyGoal'),out=$('journeyResult');
+if(!from||!to||!out)return;
+const now=new Date();
+$('journeyDate').value=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0');
+$('journeyTime').value=String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
+$('journeyWhen').addEventListener('change',()=>{$('journeyDateFields').hidden=$('journeyWhen').value==='now'});
+$('journeyGps').addEventListener('click',()=>{
+out.textContent='Standort wird ermittelt …';
+if(!navigator.geolocation){out.textContent='GPS nicht verfügbar. Bitte Start eingeben.';return}
+navigator.geolocation.getCurrentPosition(p=>{from.value=p.coords.latitude.toFixed(6)+','+p.coords.longitude.toFixed(6);out.textContent='Standort übernommen.'},()=>{out.textContent='Standort nicht verfügbar. Bitte Start eingeben.'},{enableHighAccuracy:true,timeout:15000});
+});
+$('journeyPlan').addEventListener('click',()=>{
+out.replaceChildren();const a=from.value.trim(),b=to.value.trim();
+if(!a||!b){out.textContent='Bitte Start und Ziel eingeben.';return}
+if(a.toLowerCase()===b.toLowerCase()){out.textContent='Start und Ziel müssen verschieden sein.';return}
+const params=new URLSearchParams({api:'1',origin:a,destination:b,travelmode:'transit'});
+const pref=$('journeyPreference').value;if(pref!=='best')params.set('transit_routing_preference',pref);
+const link=document.createElement('a');link.href='https://www.google.com/maps/dir/?'+params.toString();link.target='_blank';link.rel='noopener';link.textContent='🚌 Reise mit Bus und Bahn anzeigen';link.style.cssText='display:block;background:#123b72;color:white;padding:15px;border-radius:12px;text-align:center;font-weight:bold';
+out.append(link);
+const note=document.createElement('p');note.textContent=$('journeyWhen').value==='now'?'Abfahrt jetzt. Google Maps zeigt die verfügbaren Verbindungen.':'Datum und Uhrzeit bitte in Google Maps einstellen; diese Angaben werden nicht automatisch übertragen.';out.append(note);
+try{localStorage.setItem('mobilkompass-last-journey',JSON.stringify({from:a,to:b}))}catch(e){}
+});
+try{const prev=JSON.parse(localStorage.getItem('mobilkompass-last-journey')||'null');if(prev){from.value=prev.from||'';to.value=prev.to||''}}catch(e){}
+})();
+</script></html>
