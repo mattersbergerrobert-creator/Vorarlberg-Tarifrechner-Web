@@ -108,7 +108,14 @@ body.area-active header h1{font-size:21px}
 <article class="info-card"><h3>🌐 Online über ÖBB</h3><p>60-/120-Minuten-, 24-Stunden- und Monatstickets können über den ÖBB-Ticketshop gekauft werden. Ticket vor Fahrtantritt lösen und Kaufbestätigung beziehungsweise Ticket bereithalten.</p><p><b>Gut für:</b> Ticket schon zu Hause oder unterwegs kaufen.</p><a href="https://shop.oebbtickets.at/" target="_blank" rel="noopener">ÖBB-Ticketshop öffnen ↗</a></article>
 <article class="info-card"><h3>🚌 Direkt beim Buslenker</h3><p>60-/120-Minuten-, 24-Stunden- und Monatstickets sind grundsätzlich auch im Bus erhältlich.</p><p class="price-label">Üblicher Aufpreis: +0,50 €</p><p>Der Aufpreis gilt nicht beim Kauf am Fahrscheinautomaten im Bus und nicht für berechtigte Faircard-Tickets. Bezahlmöglichkeiten können je nach Bus variieren.</p><p><b>Gut für:</b> wenn kein Vorverkauf möglich ist.</p></article>
 <article class="info-card"><h3>🚉 Bahnhof &amp; Fahrscheinautomat</h3><p>Tickets gibt es an ÖBB-Bahnhöfen und Fahrscheinautomaten. VMOBIL nennt landesweit 64 Automaten an Bahnhöfen.</p><p><b>Gut für:</b> Kauf ohne App und ohne Buslenker-Aufpreis.</p><a href="https://www.vmobil.at/de/service/verkaufsstellen-und-vmobil-center" target="_blank" rel="noopener">Verkaufsstellen ansehen ↗</a></article>
-<article class="info-card"><h3>🏪 Trafiken in Vorarlberg</h3><p>VMOBIL-Tickets sind inzwischen in vielen Trafiken erhältlich. Nicht jede Trafik ist automatisch eine Verkaufsstelle.</p><details><summary>Namentlich genannte Verkaufsstellen</summary><p><b>Götzis:</b> Bahnhoftrafik Clemens Bachmeier, Bahnhofstraße 56.</p><p><b>Rankweil:</b> Tabak Trafik Sigmar Längle, Untere Bahnhofstraße 5.</p><p><b>Lustenau:</b> BOTTA Shop, Schillerstraße 2 (weitere Partnerverkaufsstelle, keine klassische Trafik).</p><p>Diese drei Stellen sind auf der offiziellen VMOBIL-Verkaufsstellenliste genannt. Vor dem Besuch Öffnungszeiten und gewünschte Ticketart prüfen.</p></details><p><b>Gut für:</b> Tickets vor der Fahrt bar oder vor Ort kaufen. Zahlungsarten vor Ort erfragen.</p><a href="https://www.vmobil.at/de/service/verkaufsstellen-und-vmobil-center" target="_blank" rel="noopener">Offizielle Verkaufsstellenliste ↗</a></article>
+<article class="info-card"><h3>🏪 Trafiken &amp; Verkaufsstellen finden</h3>
+<p>VMOBIL nennt rund 100 teilnehmende Trafiken in Vorarlberg. Eine vollständige öffentliche Namensliste konnte ich nicht verifizieren. Hier kannst du die <b>offiziell einzeln genannten Stellen</b> nach Ort oder Name durchsuchen.</p>
+<label for="sales-search">Ort oder Verkaufsstelle suchen</label>
+<input id="sales-search" type="search" placeholder="z. B. Götzis, Rankweil, Lustenau" autocomplete="off">
+<div id="sales-count" class="muted" aria-live="polite"></div>
+<div id="sales-results" class="info-list" aria-live="polite"></div>
+<p class="info-footnote">Die Treffer sind eine bestätigte Auswahl, keine vollständige Liste aller ca. 100 Trafiken. Vorher anrufen und die gewünschte Ticketart erfragen. Mit * markierte Partner verkaufen kein KlimaTicket.</p>
+<a href="https://www.vmobil.at/de/service/verkaufsstellen-und-vmobil-center" target="_blank" rel="noopener">Offizielle VMOBIL-Verkaufsstellen ↗</a></article>
 <article class="info-card"><h3>🙋 Persönliche Beratung &amp; Jahreskarten</h3><p>KlimaTickets VMOBIL können online oder in berechtigten VMOBIL-Servicebüros bestellt werden. Beratung gibt es unter anderem in Feldkirch, Bludenz und weiteren Servicestellen.</p><p><b>Gut für:</b> Senioren, Ermäßigungen, Jahreskarten, Nachweise und Fragen zur richtigen Zone.</p><a href="https://www.vmobil.at/de/service/verkaufsstellen-und-vmobil-center" target="_blank" rel="noopener">Adressen &amp; Öffnungszeiten ↗</a></article>
 </div>
 <div class="info-lead"><strong>Welche Tickets gibt es wo?</strong>
@@ -502,5 +509,40 @@ $('openDepartures').addEventListener('click',()=>{
  });
  document.getElementById('senior-route').addEventListener('click',()=>{location.hash='bereich-reise'});
  document.getElementById('extra-to-calc').addEventListener('click',()=>{location.hash='bereich-tarif'});
+})();
+</script><script>
+(function(){
+ const input=document.getElementById('sales-search'),results=document.getElementById('sales-results'),count=document.getElementById('sales-count');
+ if(!input||!results)return;
+ const places=[
+ {name:'Clemens Bachmeier Bahnhoftrafik',city:'Götzis',address:'Bahnhofstraße 56, 6840 Götzis',hours:'Mo–Fr 6:30–12:30 und 14:00–18:30, Sa 6:30–12:30, So/Feiertage 9:00–11:00',phone:'05523 64008',type:'Trafik'},
+ {name:'Tabak Trafik Sigmar Längle',city:'Rankweil',address:'Untere Bahnhofstraße 5, 6830 Rankweil',hours:'Mo–Sa 6:30–19:00, So 9:00–15:00',phone:'05522 44590',type:'Trafik'},
+ {name:'BOTTA Shop',city:'Lustenau',address:'Schillerstraße 2, 6890 Lustenau',hours:'Di–Fr 9:00–12:30 und 14:30–18:00, Sa 9:00–12:30',phone:'05577 8181-1400',type:'Partnerverkaufsstelle'},
+ {name:'VMOBIL Center Feldkirch',city:'Feldkirch',address:'Bahnhofstraße 40, 6800 Feldkirch',hours:'Mo–Fr 8:30–18:00',phone:'05522 83951',type:'Servicestelle'},
+ {name:'VMOBIL Center Bludenz',city:'Bludenz',address:'Bahnhofplatz 3, 6700 Bludenz',hours:'Mo–Do 7:10–17:45, Fr 7:10–15:50',phone:'05522 83951-321',type:'Servicestelle'},
+ {name:'VMOBIL Center Hohenems',city:'Hohenems',address:'Bahnhof, 6845 Hohenems',hours:'Mo–Fr 7:00–18:00, Sa 8:00–12:00',phone:'05572 32300',type:'Servicestelle'},
+ {name:'VMOBIL Center Dornbirn',city:'Dornbirn',address:'Bahnhof, 6850 Dornbirn',hours:'Mo–Fr 7:00–19:00, Sa 8:00–12:00',phone:'05572 32300',type:'Servicestelle'},
+ {name:'VMOBIL Center Bregenz',city:'Bregenz',address:'Bahnhof, 6900 Bregenz',hours:'Mo–Fr 7:00–18:00, Sa 8:00–12:00',phone:'05572 32300',type:'Servicestelle'},
+ {name:'Stadtbus Bregenz',city:'Bregenz',address:'Rathausstraße 4, 6900 Bregenz',hours:'Mo, Di, Do 7:30–13:00, Mi 11:00–16:30, Fr 7:30–12:00',phone:'05574 410-1833',type:'Servicestelle'},
+ {name:'Landbus Bregenzerwald',city:'Egg',address:'Loco 597, 6863 Egg',hours:'Mo, Di, Mi, Fr 9:00–12:30, Do 9:00–16:00',phone:'05512 26000',type:'Servicestelle'},
+ {name:'mbs Bus / Montafonerbahn',city:'Schruns',address:'Bahnhofstraße 15, 6780 Schruns',hours:'Ticketschalter täglich 6:00–11:30 und 12:30–18:00',phone:'05556 9000800',type:'Servicestelle'}
+ ];
+ const normalize=v=>v.toLocaleLowerCase('de-AT').normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+ function render(){
+  const q=normalize(input.value.trim());results.replaceChildren();
+  const found=places.filter(p=>normalize(p.city+' '+p.name+' '+p.address+' '+p.type).includes(q));
+  count.textContent=found.length+' bestätigte Verkaufsstelle'+(found.length===1?'':'n')+' gefunden';
+  if(!found.length){const p=document.createElement('p');p.textContent='Hier ist noch keine einzeln bestätigte Verkaufsstelle für diese Suche hinterlegt. Bitte die offizielle VMOBIL-Liste prüfen.';results.append(p);return}
+  for(const p of found){
+   const card=document.createElement('div');card.className='info-card';
+   const h=document.createElement('h3');h.textContent=p.name;card.append(h);
+   const detail=document.createElement('p');detail.textContent=p.type+' · '+p.address;card.append(detail);
+   const hours=document.createElement('p');hours.textContent='Öffnungszeiten laut VMOBIL: '+p.hours;card.append(hours);
+   const phone=document.createElement('a');phone.href='tel:'+p.phone.replace(/[^+0-9]/g,'');phone.textContent='📞 '+p.phone;card.append(phone);
+   const maps=document.createElement('a');maps.href='https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(p.address);maps.target='_blank';maps.rel='noopener';maps.textContent='📍 Karte öffnen';maps.style.marginLeft='6px';card.append(maps);
+   results.append(card);
+  }
+ }
+ input.addEventListener('input',render);render();
 })();
 </script></html>
