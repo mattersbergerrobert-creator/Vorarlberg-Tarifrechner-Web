@@ -314,8 +314,8 @@ $('removeFavorite').addEventListener('click',()=>{
  const items=saved();items.splice(Number(idx),1);localStorage.setItem('vbg-favorites',JSON.stringify(items));renderFavorites();$('quickMessage').textContent='Strecke gelöscht.';
 });
 $('quickGPS').addEventListener('click',()=>{
- $('quickMessage').textContent='Standort wird gesucht. Wähle anschließend eine Haltestelle aus.';
- $('quickAuto').click();
+ location.hash='bereich-stops';
+ $('nearby').click();
 });
 $('quickAuto').addEventListener('click',async()=>{
  const destination=$('quickDestination').value.trim();
