@@ -109,7 +109,7 @@ async function jsonFetch(url, opts={}, ms=13000){
  try{const res=await fetch(url,{...opts,signal:controller.signal});if(!res.ok)throw Error('Serverantwort '+res.status);return await res.json()}finally{clearTimeout(timer)}
 }
 async function showStops(lat,lon){
- nearbyResults.textContent='Haltestellen werden gesucht …';
+ nearbyResults.insertAdjacentHTML('beforeend','<p>Haltestellen-Daten werden geladen …</p>');
  const q=`[out:json][timeout:18];(node(around:1800,${lat},${lon})[highway=bus_stop];node(around:1800,${lat},${lon})[railway=station];node(around:1800,${lat},${lon})[railway=halt];node(around:1800,${lat},${lon})[public_transport=platform];);out body;`;
  let data, lastError;
  for(const server of ['https://overpass-api.de/api/interpreter','https://overpass.kumi.systems/api/interpreter']){
@@ -126,7 +126,7 @@ nearbyButton.addEventListener('click',()=>{
  if(!window.isSecureContext){nearbyResults.textContent='GPS ist in lokal geöffneten HTML-Dateien oft gesperrt. Bitte die Ortssuche darunter verwenden oder die Datei über HTTPS bereitstellen.';return}
  if(!navigator.geolocation){nearbyResults.textContent='Standortabfrage nicht unterstützt. Bitte Ortssuche verwenden.';return}
  nearbyButton.disabled=true;nearbyResults.textContent='Standort wird ermittelt …';
- navigator.geolocation.getCurrentPosition(async pos=>{try{await showStops(pos.coords.latitude,pos.coords.longitude)}catch(e){nearbyResults.textContent='Haltestellenserver antwortet nicht ('+(e.name==='AbortError'?'Zeitüberschreitung':e.message)+'). Bitte erneut versuchen.'}finally{nearbyButton.disabled=false}},err=>{nearbyButton.disabled=false;nearbyResults.textContent='GPS nicht verfügbar ('+err.message+'). Nutze die Ortssuche ohne GPS.'},{enableHighAccuracy:false,timeout:12000,maximumAge:120000});
+ navigator.geolocation.getCurrentPosition(async pos=>{const lat=pos.coords.latitude,lon=pos.coords.longitude;nearbyResults.innerHTML='<p><b>✓ GPS-Standort erfolgreich ermittelt.</b> Genauigkeit: etwa '+Math.round(pos.coords.accuracy)+' Meter.</p><p>Haltestellen werden jetzt gesucht …</p>';try{await showStops(lat,lon)}catch(e){nearbyResults.innerHTML='<p><b>✓ GPS funktioniert.</b> Standortgenauigkeit: etwa '+Math.round(pos.coords.accuracy)+' Meter.</p><p class="warning">Die externe Haltestellen-Datenabfrage ist fehlgeschlagen ('+safe(e.name==='AbortError'?'Zeitüberschreitung':e.message)+'). Dein Standortzugriff funktioniert; der Kartendatenserver antwortet nicht.</p><p><a target="_blank" rel="noopener" href="https://www.openstreetmap.org/#map=15/'+encodeURIComponent(lat)+'/'+encodeURIComponent(lon)+'">Haltestellen auf OpenStreetMap in der Nähe ansehen</a></p>'}finally{nearbyButton.disabled=false}},err=>{nearbyButton.disabled=false;nearbyResults.textContent='GPS nicht verfügbar ('+err.message+'). Nutze die Ortssuche ohne GPS.'},{enableHighAccuracy:false,timeout:12000,maximumAge:120000});
 });
 document.getElementById('nearbyManual').addEventListener('click',async()=>{
  const town=document.getElementById('nearbyTown').value.trim();if(town.length<2){nearbyResults.textContent='Bitte einen Ort eingeben.';return}
