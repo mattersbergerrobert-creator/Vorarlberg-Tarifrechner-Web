@@ -1,0 +1,180 @@
+<!doctype html><html lang="de"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#123b72"><title>Vorarlberg Tarifrechner – verbesserte Suche</title><style>.live-card{background:#fff;border-radius:18px;padding:20px;margin:20px 0;box-shadow:0 2px 9px #163c6410}.live-card button{background:#1357a2;color:white;border:0;border-radius:12px;padding:14px 18px;font-size:16px;font-weight:700;margin-top:12px;cursor:pointer}.live-card button:disabled{opacity:.5}.live-result{border:1px solid #d5e1ed;border-radius:12px;padding:13px;margin-top:12px}.live-meta{color:#526579;font-size:14px}.live-card .live-error{color:#9b2525}.live-card input{width:100%;font-size:16px;padding:12px}.live-card label{margin:12px 0 5px}.live-card .small{font-size:14px;color:#526579}</style><style>body{margin:0;background:#eef3f9;font:17px system-ui,Arial;color:#15253b}main{max-width:520px;margin:auto;padding:24px 17px}header{background:#123b72;color:white;padding:23px;border-radius:19px}h1{margin:0;font-size:27px}p{line-height:1.5}label{display:block;font-weight:700;margin:22px 0 8px}input{box-sizing:border-box;width:100%;padding:17px;border:2px solid #c4d0df;border-radius:13px;font-size:19px}input:focus{outline:2px solid #3778d5}section{background:white;border-radius:18px;padding:20px;margin-top:20px;box-shadow:0 4px 16px #173b6012}.price{font-size:42px;font-weight:800;color:#0b653f}.muted{color:#526276;font-size:14px}.tag{display:inline-block;background:#e4efff;padding:7px 11px;border-radius:10px;font-weight:700}.warning{background:#fff3d9;border-radius:12px;padding:12px}.overlap{background:#dff4eb;color:#125c40;border-radius:9px;padding:5px 9px;display:inline-block;font-size:14px;font-weight:800;margin:3px 0}.overlap-note{font-size:14px;line-height:1.5}details{margin:10px 0;background:#fff;border-radius:10px;padding:10px}summary{cursor:pointer}button{background:#123b72;color:white;border:0;border-radius:12px;padding:12px 17px;font-size:16px}small{line-height:1.6;display:block}datalist{display:none} .stop{border:1px solid #d8e2ed;border-radius:12px;padding:12px;margin:10px 0}.stop b{display:block}.stop button{margin-top:8px;background:#e4efff;color:#123b72}.status{font-size:14px;color:#526276}  .advice{background:#eaf7ee;border:1px solid #a6d9b4;border-radius:13px;padding:15px;margin-top:16px}.advice h3{margin:0 0 9px}.advice ul{padding-left:22px}.advice li{margin:9px 0}.selector{width:100%;padding:12px;border-radius:10px;border:1px solid #a3b4c7;background:white;font-size:16px}.range{width:100%}.note{background:#fff6df;padding:10px;border-radius:9px;font-size:14px} </style><main><header><h1>🚍 Vorarlberg Tarifrechner</h1><p>Start und Ziel eingeben – Tarif, Geltungsbereich und Überlappungspunkte ansehen.</p></header><section><h2>📍 Haltestellen in meiner Nähe</h2><p class="muted">Standort freigeben, um Haltestellen und – soweit in OpenStreetMap eingetragen – Linien zu sehen.</p><button id="nearby" type="button">📍 Mit GPS suchen</button><label for="nearbyTown">Ohne GPS: Ort eingeben</label><input id="nearbyTown" placeholder="z. B. Hard, Dornbirn, Lauterach"><button id="nearbyManual" type="button">🔎 Haltestellen beim Ort suchen</button><div id="nearby-results" aria-live="polite" class="status"></div></section><section><label for="from">Von</label><input id="from" list="places" placeholder="z. B. Dornbirn" autocomplete="off"><label for="to">Nach</label><input id="to" list="places" placeholder="z. B. Bregenz" autocomplete="off"><datalist id="places"></datalist></section><section><h2>💡 Ticket-Sparberater</h2><label for="rides">Wie viele einzelne Fahrten planst du im Monat?</label><input id="rides" type="number" min="1" max="120" value="20" inputmode="numeric"><p class="muted">Beispiel: 10 Tage mit Hin- und Rückfahrt = 20 Fahrten. Wir vergleichen Einzel-, Tages- und Monatstickets.</p></section><section id="result" aria-live="polite"><p class="muted">Bitte zwei Orte eingeben.</p></section><section id="all-overlaps"><h2>🗺️ Alle hinterlegten REGIO-Überlappungspunkte</h2><p class="muted">Zusätzlich zum bisherigen Tarifrechner: Wähle deine Monatskarte und sieh nach, welche Orte im hinterlegten REGIO-Bereich liegen. Orte mit mehreren Zuordnungen sind als Überlappungspunkte markiert.</p><label for="month-region">Meine REGIO-Monatskarte</label><select id="month-region" class="selector"></select><label for="overlap-search">Überlappungsort suchen</label><input id="overlap-search" placeholder="z. B. Lauterach, Feldkirch, Bludenz" autocomplete="off"><div id="region-coverage" class="note" style="margin-top:14px" aria-live="polite"></div><div id="all-overlap-results" aria-live="polite"></div><p class="warning"><b>Wichtig zur Gültigkeit:</b> Du kannst die gewählte REGIO-Zone nutzen, einschließlich der ihr zugeordneten Überlappungsorte. Ein Überlappungsort berechtigt <b>nicht</b> automatisch zu Fahrten in allen angrenzenden REGIO-Zonen. Die Ortslisten sind eine Orientierung, keine geprüfte Haltestellen- oder Linienkarte; insbesondere bei Grenzfahrten vor dem Ticketkauf die amtliche Gültigkeit kontrollieren.</p></section><section><strong>Hinweis zur Genauigkeit</strong><p class="muted">Die Haltestellensuche verwendet OpenStreetMap-Daten über Overpass und benötigt Internet und eine Standortfreigabe. In einer lokal geöffneten HTML-Datei kann der Browser die Standortfreigabe verweigern; für eine zuverlässige Standortfunktion muss die App über HTTPS bereitgestellt werden. Angezeigte Linien sind Kartendaten, keine geprüften Fahrplanverbindungen. Die Routenabfrage ist ein Test über eine externe Schnittstelle; sie deckt Vorarlberg nicht garantiert vollständig ab.</p><p class="muted">Die Zuordnung erfolgt aus hinterlegten REGIO-Ortslisten und einem Teil der amtlichen LOKAL-Zonen. LOKAL wird für Fahrten innerhalb derselben Ortschaft sowie für mehrere aus den Tarifbestimmungen übernommene Lokal-Zonen berücksichtigt. Noch nicht alle 69 Lokal-Zonen sind erfasst. Bei Überlappungen kannst du die zugeordneten REGIO-Bereiche und deren hinterlegte Orte aufklappen; mögliche Monatsticket-Ersparnisse werden angezeigt; die tatsächlich gefahrene Route wird nicht geprüft. Für Fahrten, bei denen die genaue Route oder Haltestelle den Tarif beeinflusst, ist MAXIMO eine sichere landesweite Option, aber möglicherweise nicht die günstigste. Auslandsfahrten sind nicht abgedeckt.</p><small>Tarifstand: 1. Juni 2026. Vollpreis, ohne etwaige Zuschläge. Kein offizielles VMOBIL-Angebot.</small></section><section class="card" id="verified-routes" style="background:#fff;border-radius:16px;padding:18px;margin:18px 0;box-shadow:0 2px 12px #123b7212"><h2>🧭 Geprüfte Routen & Überlappungspunkte</h2><p>Hier unterscheiden wir ausdrücklich zwischen <b>amtlich belegten Beispielen</b> und <b>noch zu prüfenden Verbindungen</b>. Eine Überlappung erweitert nicht automatisch deine Monatskarte auf die gesamte Nachbar-REGIO.</p><label for="verified-route-select">Verbindung auswählen</label><select id="verified-route-select" style="width:100%;padding:12px;border-radius:10px;margin:8px 0"><option value="andel">Andelsbuch → Bregenz → Dornbirn</option><option value="laut">Lauterach → Dornbirn</option><option value="feld">Feldkirch → Klaus</option></select><div id="verified-route-output" style="padding:12px;background:#f1f6fc;border-radius:12px;margin-top:10px"></div><p style="font-size:.9em">Verbindliche Prüfung: <a href="https://www.vmobil.at/tariffinder" target="_blank" rel="noopener">Offizieller VMOBIL-Tariffinder ↗</a> · <a href="https://www.vmobil.at/sites/default/files/2026-05/Tarifbestimmungen%2001.06.2026_2.pdf" target="_blank" rel="noopener">Tarifbestimmungen mit Zonenverzeichnis ↗</a></p><p style="font-size:.85em">Stand: Tarif ab 01.06.2026. Konkrete Fahrpläne, Umstiege und einzelne Linien werden hier nicht live abgefragt.</p></section><section class="live-card" id="livefahrplan"><h2>🚌 Live-Fahrplanauskunft</h2><p>Verbindungen direkt hier im Tarifrechner – ohne Weiterleitung. Mit Abfahrten, Umstiegen und verfügbaren Verspätungsangaben.</p><label for="liveFrom">Start-Haltestelle</label><input id="liveFrom" placeholder="z. B. Lauterach Bahnhof"><label for="liveTo">Ziel-Haltestelle</label><input id="liveTo" placeholder="z. B. Dornbirn Bahnhof"><button id="liveSearch" type="button">🔎 Verbindungen jetzt suchen</button><button id="copyStart" type="button" style="background:#e4efff;color:#123b72;margin-left:6px">Start/Ziel übernehmen</button><div id="liveStatus" class="small" role="status" aria-live="polite"></div><div id="liveResults" aria-live="polite"></div><p class="small">Test-Datenquelle: Schweizer Transport API (transport.opendata.ch), die Vorarlberger Verbindungen möglicherweise nicht abdeckt. Für vollständige österreichische Fahrpläne ist eine VAO-Anbindung erforderlich. Internet erforderlich. Echtzeitangaben erscheinen nur, wenn sie vom Datenanbieter geliefert werden. Die Ticketgültigkeit wird unabhängig davon geprüft; eine gefundene Verbindung garantiert keine Gültigkeit deiner REGIO-Karte.</p></section></main><script>
+const groups={
+'1 Leiblachtal':`Bregenz,Eichenberg,Hohenweiler,Hörbranz,Lindau,Lochau,Möggers,Niederstaufen,Scheidegg,Weiler im Allgäu`,
+'2 Vorderwald':`Aach im Allgäu,Alberschwende,Andelsbuch,Bezau,Bildstein,Bizau,Bregenz,Buch,Doren,Dornbirn,Egg,Hittisau,Kennelbach,Krumbach,Langen bei Bregenz,Langenegg,Lauterach,Lingenau,Oberstaufen,Reuthe,Riefensberg,Scheidegg,Schwarzach,Schwarzenberg,Sibratsgfäll,Sulzberg,Weiler im Allgäu,Wolfurt`,
+'3 Hofsteig/Rheindelta':`Bildstein,Bregenz,Brugg,Buch,Bödele,Dornbirn,Ebnit,Fußach,Gaißau,Hard,Höchst,Kennelbach,Lauterach,Lustenau,Schwarzach,St. Margrethen,Wolfurt`,
+'4 Mittleres Rheintal':`Altach,Brugg,Bödele,Dornbirn,Ebnit,Götzis,Hohenems,Koblach,Kreiers Alp,Lustenau,Millrütte,Mäder,Schuttannen`,
+'5 Hinterwald':`Au,Bezau,Bizau,Damüls,Gurtis,Hochkrumbach,Lech am Arlberg,Mellau,Reuthe,Schnepfau,Schoppernau,Schröcken,Schönenbach,Steeg in Tirol,Warth,Zürs`,
+'6 Vorderland':`Altach,Batschuns,Brederis,Dafins,Damüls,Feldkirch,Fraxern,Göfis,Götzis,Innerlaterns,Klaus,Koblach,Laterns,Meiningen,Millrütte,Muntlix,Mäder,Rankweil,Röthis,Sulz,Viktorsberg,Weiler,Zwischenwasser,Übersaxen`,
+'7 Walgau/Großes Walsertal':`Amerlügen,Bings,Blons,Bludenz,Bludesch,Buchboden,Bürs,Damüls,Düns,Dünserberg,Faschina,Feldkirch,Fontanella,Frastanz,Gais,Gurtis,Laguzalpe,Ludesch,Marul,Nenzing,Nüziders,Raggal,Röns,Satteins,Schlins,Schnifis,Sonntag,St. Gerold,Stallehr,Thüringen,Thüringerberg,Älpele`,
+'8 Klostertal/Arlberg':`Bings,Bludenz,Braz,Bürs,Dalaas,Innerbraz,Klösterle,Langen am Arlberg,Lech am Arlberg,Nüziders,Rauz,St. Anton am Arlberg,St. Christoph,Stallehr,Stuben,Wald am Arlberg,Zürs`,
+'9 Montafon/Brandnertal':`Bartholomäberg,Bielerhöhe,Bings,Bludenz,Brand,Bürs,Bürserberg,Gargellen,Gaschurn,Innerberg,Kops Zeinisjoch,Latschau,Lorüns,Lünerseebahn,Nüziders,Partenen,Schruns,Silbertal,St. Anton im Montafon,St. Gallenkirch,Stallehr,Tschagguns,Vandans,Wirl`};
+const norm=s=>s.toLocaleLowerCase('de').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/ß/g,'ss').replace(/[^a-z0-9]/g,'');
+const memberships={};Object.entries(groups).forEach(([g,s])=>s.split(',').forEach(p=>{const n=norm(p);(memberships[n]??=[]).push(g)}));const names=[...new Set(Object.values(groups).flatMap(x=>x.split(',')))].sort((a,b)=>a.localeCompare(b,'de'));document.querySelector('datalist').innerHTML=names.map(x=>'<option value="'+x+'">').join('');
+const a=document.querySelector('#from'),b=document.querySelector('#to'),out=document.querySelector('#result');
+const localAreas={
+ bregenz:`Bregenz,Lochau,Hörbranz,Langen bei Bregenz,Kennelbach,Lauterach,Wolfurt,Schwarzach,Hard,Fußach`,
+ alberschwende:`Alberschwende,Dornbirn,Bildstein,Buch,Egg,Andelsbuch,Schwarzenberg`,
+ dornbirn:`Dornbirn,Schwarzach,Wolfurt,Lauterach,Kennelbach,Lustenau,Hohenems,Alberschwende`,
+ feldkirch:`Feldkirch,Brederis,Meiningen,Klaus,Weiler,Sulz,Röthis,Zwischenwasser,Rankweil,Göfis,Frastanz,Satteins,Röns`,
+ hard:`Hard,Fußach,Höchst,Gaißau,Bregenz,Kennelbach,Lauterach,Wolfurt,Schwarzach,Lustenau,St. Margrethen`,
+ bildstein:`Bildstein,Buch,Alberschwende,Kennelbach,Lauterach,Wolfurt,Schwarzach`,
+ egg:`Egg,Andelsbuch,Schwarzenberg,Bezau,Bizau,Reuthe,Lingenau,Langenegg,Hittisau,Alberschwende`,
+ bezau:`Bezau,Bizau,Reuthe,Mellau,Schwarzenberg,Andelsbuch,Egg`,
+ gofis:`Göfis,Feldkirch,Rankweil,Zwischenwasser,Sulz,Röthis,Klaus,Weiler,Frastanz,Satteins,Röns`,
+ frastanz:`Frastanz,Satteins,Göfis,Feldkirch,Röns,Düns,Schnifis,Schlins,Nenzing,Bludesch`,
+ gotzis:`Götzis,Koblach,Mäder,Altach,Hohenems,Meiningen,Brederis,Klaus,Weiler,Sulz,Röthis,Zwischenwasser,Rankweil`,
+ hohenems:`Hohenems,Dornbirn,Lustenau,Altach,Mäder,Koblach,Götzis`,
+ bludenz:`Bludenz,Nüziders,Ludesch,Thüringen,Bludesch,Bürs,Bürserberg,Stallehr,Innerbraz,Lorüns,St. Anton im Montafon,Vandans`,
+ hoechst:`Höchst,Gaißau,Fußach,Lustenau,Hard,St. Margrethen`,
+ au:`Au,Schoppernau,Schnepfau`,
+ bartholomaberg:`Bartholomäberg,Schruns,Tschagguns,St. Anton im Montafon,Lorüns,Vandans`,
+ blons:`Blons,St. Gerold,Thüringerberg,Sonntag,Raggal`,
+ brand:`Brand,Bürserberg`,
+ dalaas:`Dalaas,Klösterle,Innerbraz`,
+ damuls:`Damüls,Fontanella,Laterns`,
+ doren:`Doren,Sulzberg,Langen bei Bregenz,Krumbach,Riefensberg`,
+ dunserberg:`Dünserberg,Düns,Schnifis,Röns`,
+ eichenberg:`Eichenberg,Möggers,Scheidegg,Lochau,Hörbranz`,
+ fontanella:`Fontanella,Damüls,Sonntag`,
+ fraxern:`Fraxern,Klaus,Weiler,Sulz,Röthis,Rankweil,Zwischenwasser`,
+ gaschurn:`Gaschurn,St. Gallenkirch`,
+ hohenweiler:`Hohenweiler,Niederstaufen,Möggers,Scheidegg,Hörbranz,Lochau`,
+ innerbraz:`Innerbraz,Stallehr,Bludenz,Bürs,Nüziders,Dalaas`
+};
+// Amtliche Lokal-Zonen werden richtungsunabhängig nur geprüft, wenn beide Orte
+// ausdrücklich in derselben hinterlegten Zone stehen.
+const localEntries=Object.entries(localAreas).map(([name,places])=>({name,places:places.split(',').map(norm)}));
+const aliases={'langenbb':'Langen bei Bregenz','stgallenkirch':'St. Gallenkirch','st anton immontafon':'St. Anton im Montafon','hochst':'Höchst','gotzis':'Götzis','gofis':'Göfis'};
+const lookup=new Map(names.map(n=>[norm(n),n]));
+for(const zone of localEntries)for(const raw of localAreas[zone.name].split(','))if(!lookup.has(norm(raw)))lookup.set(norm(raw),raw);
+const allNames=[...new Set(lookup.values())].sort((x,y)=>x.localeCompare(y,'de'));
+document.querySelector('#places').innerHTML=allNames.map(n=>'<option value="'+n+'">').join('');
+function editDistance(a,b){const d=Array.from({length:b.length+1},(_,i)=>i);for(let i=1;i<=a.length;i++){let prev=d[0];d[0]=i;for(let j=1;j<=b.length;j++){const t=d[j];d[j]=Math.min(d[j]+1,d[j-1]+1,prev+(a[i-1]===b[j-1]?0:1));prev=t}}return d[b.length]}
+function suggest(s){const n=norm(s);return allNames.map(v=>({v,score:editDistance(n,norm(v))})).sort((a,b)=>a.score-b.score).slice(0,3).filter(o=>o.score<=Math.max(2,Math.floor(n.length*.4))).map(o=>o.v)}
+
+const safe=s=>s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function calculate(){
+ const x=a.value.trim(),y=b.value.trim(),nx=norm(x),ny=norm(y);
+ if(!x||!y){out.innerHTML='<p class="muted">Bitte Start und Ziel eingeben.</p>';return}
+ const g1=memberships[nx] || (localEntries.some(z=>z.places.includes(nx))?[]:null),g2=memberships[ny] || (localEntries.some(z=>z.places.includes(ny))?[]:null);
+ if(!g1||!g2){const unknown=!g1?x:y;const proposals=suggest(unknown);out.innerHTML='<div class="warning">Ort nicht erkannt: <b>'+safe(unknown)+'</b>.'+(proposals.length?' Meintest du: '+proposals.map(safe).join(', ')+'?':' Bitte aus den Vorschlägen wählen.')+'</div>';return}
+ const common=g1.filter(v=>g2.includes(v));
+ const same=nx===ny;
+ const matchedLocals=localEntries.filter(z=>z.places.includes(nx)&&z.places.includes(ny));
+ const local=same || matchedLocals.length>0;
+ const kind=local?'LOKAL':common.length?'REGIO':'MAXIMO';
+ const fare=local?2.4:common.length?4.8:9.6,day=local?4.6:common.length?9.2:18.4,month=local?35:common.length?70:140;
+ const money=n=>n.toFixed(2).replace('.',',')+' €';
+
+ let overlaps=[...new Set([nx,ny])].map(n=>({name:n===nx?x:y,z:memberships[n]||[]})).filter(o=>o.z.length>1);
+ const coveredPlaces=group=>groups[group].split(',').filter(Boolean).sort((a,b)=>a.localeCompare(b,'de'));
+ const zoneDetails=common.map(g=>'<details><summary><b>'+safe('REGIO '+g)+'</b> – '+coveredPlaces(g).length+' hinterlegte Orte anzeigen</summary><p class="muted">Orte laut hinterlegter Liste (keine vollständige Haltestellen- oder Routenprüfung):</p><p>'+coveredPlaces(g).map(safe).join(' · ')+'</p></details>').join('');
+ let tip='';
+ if(overlaps.length || common.length){
+ tip='<div class="warning"><b>💡 Überlappungspunkte & Tarifvorteile</b>'+
+ (overlaps.length?'<p>'+overlaps.map(o=>'<span class="overlap">🔀 Überlappungspunkt: '+safe(o.name)+'</span><br><span class="overlap-note">Dieser Ort ist mehreren REGIO-Bereichen zugeordnet: '+o.z.map(g=>safe('REGIO '+g)).join(' · ')+'. Das ist eine Tarifgrenze bzw. ein gemeinsamer Bereich, kein zusätzliches Ticket.</span>').join('<br><br>')+'</p>':'')+
+ (common.length?'<p>Für Start und Ziel gemeinsam hinterlegt: <b>'+common.map(g=>safe('REGIO '+g)).join(', ')+'</b>. Wähle für ein REGIO-Monatsticket einen dieser Bereiche. Das Ticket gilt innerhalb des ausgewählten REGIO-Bereichs, nicht automatisch in allen überlappenden REGIO-Bereichen.</p>'+zoneDetails+'<p><b>Preisvergleich Monat:</b> REGIO 70,00 € · MAXIMO 140,00 € (mögliche Ersparnis 70,00 €). Der Vorteil gilt nur, wenn die konkrete Fahrt vollständig im gewählten REGIO-Bereich liegt.</p>':'<p><b>Kein gemeinsamer REGIO-Bereich für beide Orte hinterlegt.</b> Die Überlappung allein berechtigt nicht zu einer Fahrt mit nur einem REGIO-Ticket.</p>')+
+ '<p class="muted">Die Ortslisten sind eine Orientierung. Ein konkreter Linienweg kann außerhalb des Bereichs verlaufen; Grenz- und Sonderstrecken müssen gesondert geprüft werden.</p></div>';
+ }
+ const trips=Math.max(1,Math.min(120,parseInt(document.getElementById('rides').value,10)||1));
+ const euro=n=>n.toFixed(2).replace('.',',')+' €';
+ const singles=trips*fare, days=Math.ceil(trips/2)*day;
+ const choices=[{name:trips+' Einzeltickets',cost:singles},{name:Math.ceil(trips/2)+' 24-Stunden-Tickets (je zwei Fahrten am selben Tag)',cost:days},{name:'1 Monatsticket',cost:month}].sort((u,v)=>u.cost-v.cost);
+ const best=choices[0];
+ const savings=Math.max(0,singles-best.cost);
+ const localChoices=matchedLocals.map(z=>z.name).filter((v,i,arr)=>arr.indexOf(v)===i);
+ const zoneOptions=local ? (localChoices.length?localChoices.map(z=>({label:'LOKAL '+localAreas[z].split(',')[0],places:localAreas[z].split(',')})):[{label:'LOKAL '+x,places:[x]}]) : common.map(z=>({label:'REGIO '+z,places:coveredPlaces(z)}));
+ const advice='<div class="advice"><h3>🎫 Günstigere Ticketmöglichkeiten</h3><p><b>Rechnerischer Spartipp:</b> '+safe(best.name)+' – <b>'+euro(best.cost)+'</b>'+(savings?' statt '+euro(singles)+' für lauter Einzelfahrten (bis zu '+euro(savings)+' Unterschied).':'')+'</p>'+
+ '<ul>'+choices.map(c=>'<li>'+safe(c.name)+': <b>'+euro(c.cost)+'</b></li>').join('')+'</ul>'+
+ '<p class="muted">Der Tageskartenvergleich setzt voraus, dass jeweils zwei Fahrten innerhalb derselben 24 Stunden stattfinden. Monatstickets gelten einen Monat, nicht automatisch einen Kalendermonat.</p>'+
+ (zoneOptions.length?'<p><b>Wo ist die gewählte Zone nutzbar?</b> '+(zoneOptions.length>1?'Bei Überlappung bitte genau eine Zone auswählen:':'')+'</p><select class="selector" id="zone-choice" aria-label="Ticketzone auswählen">'+zoneOptions.map((z,i)=>'<option value="'+i+'">'+safe(z.label)+'</option>').join('')+'</select><div id="zone-coverage" class="note" style="margin-top:10px"></div>':'<p class="note">Für diese Verbindung ist nach den hinterlegten Ortslisten kein gemeinsamer REGIO-Bereich erkennbar. MAXIMO bietet die landesweite Abdeckung.</p>')+
+ '<p class="note"><b>Bitte beachten:</b> Diese Tipps beruhen auf Ortslisten, nicht auf einer geprüften Route. Ein REGIO-Ticket gilt nur in der ausdrücklich gewählten Zone; überlappende andere Zonen sind nicht automatisch mitabgedeckt. LOKAL-Bereiche sind teilweise erfasst. Vor dem Kauf die genaue Gültigkeit kontrollieren.</p></div>';
+ const overlapBadges=overlaps.map(o=>'<span class="overlap">🔀 Überlappungspunkt: '+safe(o.name)+'</span>').join(' ');
+ const zone=local?'LOKAL '+(matchedLocals.length?localAreas[matchedLocals[0].name].split(',')[0]:x):common.length?'REGIO '+common.join(' / '):'MAXIMO';
+ out.innerHTML='<span class="tag">'+kind+'</span><div style="margin-top:8px">'+overlapBadges+'</div><h2>'+safe(x)+' → '+safe(y)+'</h2><p>Tarifbereich: <b>'+safe(zone)+'</b></p><div class="price">'+money(fare)+'</div><b>'+(kind==='MAXIMO'?'120':'60')+' Minuten · Vollpreis</b><hr><p>24 Stunden: <b>'+money(day)+'</b></p><p>Monat: <b>'+money(month)+'</b></p>'+tip+advice+'<p class="muted">'+(local?'LOKAL-Zuordnung nach hinterlegten Beispieldaten.':'REGIO-Zuordnung nach Ortslisten; die tatsächliche Linienführung und konkrete Haltestellen sind nicht geprüft.')+' Keine verbindliche Ticket- oder Routenprüfung.</p>';
+ if(zoneOptions.length){
+   const selector=document.getElementById('zone-choice'), coverage=document.getElementById('zone-coverage');
+   const render=()=>{const z=zoneOptions[Number(selector.value)];coverage.innerHTML='<b>'+safe(z.label)+'</b><p>Hinterlegte Orte in diesem Bereich (Orientierung, keine Garantie für jede Linie):</p>'+z.places.map(safe).join(' · ');};
+   selector.addEventListener('change',render);render();
+ }
+}
+a.addEventListener('input',calculate);document.getElementById('rides').addEventListener('input',calculate);b.addEventListener('input',calculate);
+
+const nearbyButton=document.getElementById('nearby');
+const nearbyResults=document.getElementById('nearby-results');
+function distanceKm(lat1,lon1,lat2,lon2){const R=6371,dLat=(lat2-lat1)*Math.PI/180,dLon=(lon2-lon1)*Math.PI/180;const q=Math.sin(dLat/2)**2+Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)**2;return 2*R*Math.atan2(Math.sqrt(q),Math.sqrt(1-q))}
+async function jsonFetch(url, opts={}, ms=13000){
+ const controller=new AbortController(), timer=setTimeout(()=>controller.abort(),ms);
+ try{const res=await fetch(url,{...opts,signal:controller.signal});if(!res.ok)throw Error('Serverantwort '+res.status);return await res.json()}finally{clearTimeout(timer)}
+}
+async function showStops(lat,lon){
+ nearbyResults.textContent='Haltestellen werden gesucht …';
+ const q=`[out:json][timeout:18];(node(around:1800,${lat},${lon})[highway=bus_stop];node(around:1800,${lat},${lon})[railway=station];node(around:1800,${lat},${lon})[railway=halt];node(around:1800,${lat},${lon})[public_transport=platform];);out body;`;
+ let data, lastError;
+ for(const server of ['https://overpass.kumi.systems/api/interpreter','https://overpass-api.de/api/interpreter']){
+  try{data=await jsonFetch(server,{method:'POST',body:new URLSearchParams({data:q})},24000);break}catch(e){lastError=e}
+ }
+ if(!data)throw lastError;
+ const stops=(data.elements||[]).filter(x=>x.tags?.name&&Number.isFinite(x.lat)&&Number.isFinite(x.lon)).map(x=>({...x,dist:distanceKm(lat,lon,x.lat,x.lon)})).sort((x,y)=>x.dist-y.dist);
+ const unique=[],used=new Set();for(const x of stops){const key=norm(x.tags.name);if(!used.has(key)){unique.push(x);used.add(key)}if(unique.length===12)break}
+ if(!unique.length){nearbyResults.textContent='Keine benannten Haltestellen in 1,8 km gefunden. Versuche einen anderen Ort.';return}
+ nearbyResults.innerHTML='<p><b>Nächste Haltestellen</b> (Luftlinie)</p>'+unique.map((x,i)=>'<div class="stop"><b>'+safe(x.tags.name)+'</b><span>'+Math.round(x.dist*1000)+' m entfernt</span><br><button type="button" data-stop="'+i+'">Als Start übernehmen</button></div>').join('');
+ nearbyResults.querySelectorAll('[data-stop]').forEach(button=>button.addEventListener('click',()=>{const stop=unique[Number(button.dataset.stop)];document.getElementById('liveFrom').value=stop.tags.name;document.getElementById('from').value=stop.tags.name;document.getElementById('liveTo').focus();nearbyResults.insertAdjacentHTML('beforeend','<p class="muted">Als Fahrplan-Start übernommen. Die Tarifberechnung benötigt eventuell noch den Ortsnamen statt des Haltestellennamens.</p>')}));
+}
+nearbyButton.addEventListener('click',()=>{
+ if(!window.isSecureContext){nearbyResults.textContent='GPS ist in lokal geöffneten HTML-Dateien oft gesperrt. Bitte die Ortssuche darunter verwenden oder die Datei über HTTPS bereitstellen.';return}
+ if(!navigator.geolocation){nearbyResults.textContent='Standortabfrage nicht unterstützt. Bitte Ortssuche verwenden.';return}
+ nearbyButton.disabled=true;nearbyResults.textContent='Standort wird ermittelt …';
+ navigator.geolocation.getCurrentPosition(async pos=>{try{await showStops(pos.coords.latitude,pos.coords.longitude)}catch(e){nearbyResults.textContent='Haltestellenserver nicht erreichbar ('+e.message+'). Bitte später erneut versuchen.'}finally{nearbyButton.disabled=false}},err=>{nearbyButton.disabled=false;nearbyResults.textContent='GPS nicht verfügbar ('+err.message+'). Nutze die Ortssuche ohne GPS.'},{enableHighAccuracy:false,timeout:12000,maximumAge:120000});
+});
+document.getElementById('nearbyManual').addEventListener('click',async()=>{
+ const town=document.getElementById('nearbyTown').value.trim();if(town.length<2){nearbyResults.textContent='Bitte einen Ort eingeben.';return}
+ const btn=document.getElementById('nearbyManual');btn.disabled=true;nearbyResults.textContent='Ort wird gesucht …';
+ try{const matches=await jsonFetch('https://nominatim.openstreetmap.org/search?'+new URLSearchParams({q:town+', Vorarlberg, Österreich',format:'json',limit:'1'}));if(!matches.length)throw Error('Ort nicht gefunden');await showStops(Number(matches[0].lat),Number(matches[0].lon))}catch(e){nearbyResults.textContent='Ortssuche fehlgeschlagen: '+e.message+'. Internetverbindung prüfen.'}finally{btn.disabled=false}
+});
+
+// Zusätzliche Monatskarten-/Überlappungsansicht; verwendet dieselben Ortslisten wie der Rechner.
+const monthRegion=document.getElementById('month-region');
+const overlapSearch=document.getElementById('overlap-search');
+const overlapResults=document.getElementById('all-overlap-results');
+const regionCoverage=document.getElementById('region-coverage');
+Object.keys(groups).forEach(key=>monthRegion.add(new Option('REGIO '+key,key)));
+monthRegion.value='3 Hofsteig/Rheindelta';
+const multiNames=names.filter(n=>(memberships[norm(n)]||[]).length>1);
+function renderOverlaps(){
+ const selected=monthRegion.value;
+ const zonePlaces=groups[selected].split(',');
+ const inZone=zonePlaces.filter(n=>(memberships[norm(n)]||[]).length>1);
+ regionCoverage.innerHTML='<b>Deine Auswahl: REGIO '+safe(selected)+'</b><p>In dieser REGIO hinterlegte Orte ('+zonePlaces.length+'):</p><details><summary>Alle Orte dieser REGIO anzeigen</summary><p>'+zonePlaces.map(safe).join(' · ')+'</p></details><p><b>Überlappungspunkte innerhalb deiner REGIO ('+inZone.length+'):</b> '+(inZone.map(safe).join(' · ')||'Keine aus den Ortslisten erkannt')+'</p><p><b>Effektiv nutzbar:</b> Fahrten innerhalb der gewählten REGIO, soweit Haltestelle, Linie und Fahrweg vom Tarif umfasst sind. Andere REGIO-Bereiche sind nicht automatisch eingeschlossen.</p>';
+ const q=norm(overlapSearch.value.trim());
+ const matches=multiNames.filter(n=>!q||norm(n).includes(q));
+ overlapResults.innerHTML='<h3>🔀 Überlappungsorte ('+matches.length+')</h3>'+(matches.length?matches.map(n=>{const regs=memberships[norm(n)];const included=regs.includes(selected);return '<details><summary><b>'+safe(n)+'</b> · '+(included?'✓ in deiner REGIO':'nicht in gewählter REGIO bestätigt')+'</summary><p>Hinterlegte Zuordnung: '+regs.map(g=>'<span class="overlap">REGIO '+safe(g)+'</span>').join(' ')+'</p><p><b>'+(included?'Mit deiner ausgewählten REGIO-Monatskarte innerhalb dieser REGIO nutzbar.':'Für diese Monatskarte aus den hinterlegten Ortslisten nicht als nutzbar bestätigt.')+'</b> Die übrigen aufgeführten REGIO-Zonen sind dadurch nicht mitbezahlt.</p></details>'}).join(''):'<p class="muted">Kein Überlappungsort zu dieser Suche gefunden.</p>');
+}
+monthRegion.addEventListener('change',renderOverlaps);
+overlapSearch.addEventListener('input',renderOverlaps);
+renderOverlaps();
+</script><script>
+(function(){const sel=document.getElementById('verified-route-select'),out=document.getElementById('verified-route-output');if(!sel||!out)return;const routes={andel:'<b>✓ Offiziell bestätigtes Tarifbeispiel</b><p>VMOBIL nennt ausdrücklich: Mit einem <b>REGIO-2-Ticket (Vorderwald)</b> kannst du von <b>Andelsbuch nach Bregenz</b>, mit dem Zug weiter nach <b>Dornbirn</b> und zurück nach Andelsbuch fahren, solange die zeitliche Gültigkeit passt. Bregenz und Dornbirn fungieren hier als Überlappungsorte.</p><p><b>Monatskarte:</b> Eine REGIO-2-Monatskarte bietet innerhalb ihres gültigen REGIO-2-Bereichs zeitlich unbegrenzte Fahrten im Gültigkeitsmonat. <b>Nicht</b> automatisch ganz REGIO 3 oder REGIO 4.</p><small>Quelle: Land Vorarlberg, Medieninformation vom 24.03.2026 zur neuen Tarifwelt.</small>',laut:'<b>◷ Route noch einzeln zu prüfen</b><p><b>Lauterach → Dornbirn</b> ist als mögliche REGIO-3-Verbindung in den hinterlegten Ortslisten erfasst. Ob <b>jede konkrete Bus- oder Bahnroute</b> und die gewünschten Zwischenstopps abgedeckt sind, muss anhand des offiziellen Tariffinders und des Zonenverzeichnisses bestätigt werden.</p><p><b>Wichtig:</b> Die Überlappung von Lauterach oder Dornbirn mit anderen REGIO-Zonen bedeutet nicht, dass du deren gesamtes Gebiet nutzen darfst.</p>',feld:'<b>✓ Offiziell bestätigtes LOKAL-Beispiel</b><p>Das Land Vorarlberg nennt <b>Feldkirch → Klaus</b> ausdrücklich als Fahrt innerhalb der erweiterten <b>LOKAL-Zone Feldkirch</b>. Das ist ein Beispiel dafür, dass sich ein günstigeres LOKAL-Ticket lohnen kann.</p><p><b>Wichtig:</b> Das ist ein LOKAL-Beispiel und kein Nachweis dafür, dass jede REGIO-Monatskarte auf beliebigen Wegen zwischen diesen Orten gilt.</p><small>Quelle: Land Vorarlberg, Medieninformation vom 24.03.2026.</small>'};function render(){out.innerHTML=routes[sel.value]}sel.addEventListener('change',render);render()})();
+</script><script>
+(function(){
+const $=id=>document.getElementById(id);
+$('copyStart').addEventListener('click',()=>{$('liveFrom').value=$('from').value;$('liveTo').value=$('to').value;$('liveStatus').textContent='Start und Ziel übernommen.'});
+$('liveSearch').addEventListener('click',async()=>{
+ const from=$('liveFrom').value.trim(),to=$('liveTo').value.trim(),status=$('liveStatus'),out=$('liveResults');
+ if(!from||!to){status.textContent='Bitte Start und Ziel eingeben.';return}
+ if(from.toLowerCase()===to.toLowerCase()){status.textContent='Start und Ziel müssen unterschiedlich sein.';return}
+ const btn=$('liveSearch');btn.disabled=true;status.textContent='Fahrplanverbindungen werden abgefragt …';out.innerHTML='';
+ try{
+ const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),16000);
+ let data;try{const url='https://transport.opendata.ch/v1/connections?'+new URLSearchParams({from,to,limit:'5'});const r=await fetch(url,{signal:controller.signal});if(!r.ok)throw Error('HTTP '+r.status);data=await r.json()}finally{clearTimeout(timer)}
+ const list=(data.connections||[]).slice(0,5);if(!list.length){status.textContent='Keine Verbindung gefunden. Diese Test-Schnittstelle deckt Vorarlberg möglicherweise nicht ab. Für vollständige Ergebnisse wird eine österreichische VAO-Anbindung benötigt.';return}
+ const esc=t=>String(t??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ const time=v=>{if(!v)return '–';const d=new Date(v);return Number.isNaN(d.getTime())?'–':d.toLocaleTimeString('de-AT',{hour:'2-digit',minute:'2-digit',timeZone:'Europe/Vienna'})};
+ out.innerHTML=list.map(c=>'<div class="live-result"><b>'+time(c.from?.departure)+' → '+time(c.to?.arrival)+'</b><p class="live-meta">'+(c.sections||[]).map(s=>s.journey?esc((s.journey.category||'')+' '+(s.journey.number||'')+' Richtung '+(s.journey.to||'')):'Fußweg').join(' · ')+'</p><details><summary>Fahrtabschnitte anzeigen</summary>'+(c.sections||[]).map(s=>'<p>'+esc(s.departure?.station?.name||'Start')+' ('+time(s.departure?.departure)+') → '+esc(s.arrival?.station?.name||'Ziel')+' ('+time(s.arrival?.arrival)+')</p>').join('')+'</details></div>').join('');
+ status.textContent=list.length+' Verbindung(en) gefunden. Datenabdeckung und Tarifgültigkeit bitte getrennt prüfen.';
+ }catch(e){status.textContent='Fahrplanabfrage fehlgeschlagen ('+(e.name==='AbortError'?'Zeitüberschreitung':e.message)+'). Diese Schnittstelle ist für Vorarlberg nicht vollständig geeignet. Für verlässliche Ergebnisse wird eine VAO-Anbindung benötigt.'}
+ finally{btn.disabled=false}
+});
+})();
+</script></html>
