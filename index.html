@@ -112,10 +112,11 @@ async function showStops(lat,lon){
  nearbyResults.insertAdjacentHTML('beforeend','<p>Haltestellen-Daten werden geladen …</p>');
  const q=`[out:json][timeout:18];(node(around:1800,${lat},${lon})[highway=bus_stop];node(around:1800,${lat},${lon})[railway=station];node(around:1800,${lat},${lon})[railway=halt];node(around:1800,${lat},${lon})[public_transport=platform];);out body;`;
  let data, lastError;
- for(const server of ['https://overpass-api.de/api/interpreter','https://overpass.kumi.systems/api/interpreter']){
-  try{data=await jsonFetch(server,{method:'POST',body:new URLSearchParams({data:q})},24000);break}catch(e){lastError=e}
+ const servers=['https://overpass.kumi.systems/api/interpreter','https://overpass.private.coffee/api/interpreter','https://overpass-api.de/api/interpreter','https://overpass.nchc.org.tw/api/interpreter'];
+ for(const server of servers){
+  try{data=await jsonFetch(server+'?'+new URLSearchParams({data:q}),{},12000);break}catch(e){lastError=e}
  }
- if(!data)throw lastError;
+ if(!data)throw Error('Alle vier Haltestellenserver sind momentan nicht erreichbar: '+(lastError?.message||'Netzwerkfehler'));
  const stops=(data.elements||[]).filter(x=>x.tags?.name&&Number.isFinite(x.lat)&&Number.isFinite(x.lon)).map(x=>({...x,dist:distanceKm(lat,lon,x.lat,x.lon)})).sort((x,y)=>x.dist-y.dist);
  const unique=[],used=new Set();for(const x of stops){const key=norm(x.tags.name);if(!used.has(key)){unique.push(x);used.add(key)}if(unique.length===12)break}
  if(!unique.length){nearbyResults.textContent='Keine benannten Haltestellen in 1,8 km gefunden. Versuche einen anderen Ort.';return}
