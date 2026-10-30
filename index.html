@@ -193,12 +193,20 @@ $('liveSearch').addEventListener('click',async()=>{
    return matches.length===1?matches[0]:null;
   }
   const fs=locate(from),ts=locate(to);
-  const descriptor=(name,stop)=>stop?'A=1@O='+stop.name+'@X='+Math.round(stop.lon*1e6)+'@Y='+Math.round(stop.lat*1e6)+'@U=81@':'A=1@O='+name+'@';
-  const params=new URLSearchParams({SID:descriptor(from,fs),ZID:descriptor(to,ts),context:'TP',start:'1',journeyProducts:'7167'});
+  let ids={};try{const ir=await fetch('./scotty-stops.json',{cache:'no-store'});if(ir.ok)ids=await ir.json()}catch(e){}
+  const official=name=>{const q=normalize(name);return Object.values(ids).find(x=>normalize(x.name)===q&&x.id)||null};
+  const fi=official(from),ti=official(to);
+  if(!fi||!ti){
+   status.textContent='Scotty-Kennungen für diese Strecke noch nicht verfügbar. Keine automatische Übergabe möglich.';
+   out.innerHTML='<p>Die Haltestellen sind in unserer Karte vorhanden, aber Scotty benötigt eigene Kennungen. <a href="https://fahrplan.oebb.at/webapp/" target="_blank" rel="noopener">Scotty manuell öffnen</a>.</p>';
+   return;
+  }
+  const descriptor=x=>x.lid||('A=1@O='+x.name+'@L='+x.id+'@');
+  const params=new URLSearchParams({SID:descriptor(fi),ZID:descriptor(ti),context:'TP',start:'1',journeyProducts:'7167'});
   const url='https://fahrplan.oebb.at/webapp/?'+params.toString();
   out.innerHTML='';
   const p=document.createElement('p'),link=document.createElement('a');link.href=url;link.target='_blank';link.rel='noopener';link.textContent='ÖBB Scotty mit dieser Strecke öffnen';p.appendChild(link);out.appendChild(p);
-  const note=document.createElement('p');note.className='small';note.textContent='Zuordnung: Start '+(fs?'gefunden':'nicht eindeutig')+', Ziel '+(ts?'gefunden':'nicht eindeutig')+'. Bei Öffnung in der Scotty-App kann die App die Web-Übergabe ignorieren.';out.appendChild(note);
+  const note=document.createElement('p');note.className='small';note.textContent='Zuordnung: Start '+(fi?'Scotty-ID gefunden':'keine Scotty-ID')+', Ziel '+(ti?'Scotty-ID gefunden':'keine Scotty-ID')+'. Bei Öffnung in der Scotty-App kann die App die Web-Übergabe ignorieren.';out.appendChild(note);
   const copy=document.createElement('button');copy.type='button';copy.textContent='Start und Ziel kopieren';copy.onclick=async()=>{try{await navigator.clipboard.writeText(from+' → '+to);status.textContent='Strecke kopiert.'}catch(e){status.textContent='Kopieren nicht möglich.'}};out.appendChild(copy);
   status.textContent='Scotty-Link vorbereitet. Bitte auf „ÖBB Scotty mit dieser Strecke öffnen“ tippen.';
  }catch(e){status.textContent='Haltestellen konnten nicht zugeordnet werden: '+e.message+'. Bitte Scotty direkt öffnen.'}
