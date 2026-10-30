@@ -110,6 +110,21 @@ async function jsonFetch(url, opts={}, ms=13000){
  try{const res=await fetch(url,{...opts,signal:controller.signal});if(!res.ok)throw Error('Serverantwort '+res.status);return await res.json()}finally{clearTimeout(timer)}
 }
 async function showStops(lat,lon){
+ // Vorrangig dieselbe Domain: keine CORS-Abfrage an fremde Server.
+ try {
+  const response=await fetch('./stops.json',{cache:'no-store'});
+  if(response.ok){
+   const dataset=await response.json();
+   if(Array.isArray(dataset.stops)&&dataset.stops.length>100){
+    const stops=dataset.stops.map(x=>({name:x.name,dist:distanceKm(lat,lon,Number(x.lat),Number(x.lon))})).filter(x=>Number.isFinite(x.dist)).sort((a,b)=>a.dist-b.dist);
+    const unique=[],seen=new Set();
+    for(const stop of stops){const key=norm(stop.name);if(!seen.has(key)){unique.push(stop);seen.add(key)}if(unique.length>=12)break}
+    nearbyResults.innerHTML='<p><b>Nächste Haltestellen (gespeicherte Kartendaten)</b></p>'+unique.map((x,i)=>'<div class="stop"><b>'+safe(x.name)+'</b><span>'+Math.round(x.dist*1000)+' m entfernt</span><br><button type="button" data-local-stop="'+i+'">Als Start übernehmen</button></div>').join('');
+    nearbyResults.querySelectorAll('[data-local-stop]').forEach(button=>button.addEventListener('click',()=>{const stop=unique[Number(button.dataset.localStop)];document.getElementById('liveFrom').value=stop.name;document.getElementById('from').value=stop.name;document.getElementById('liveTo').focus()}));
+    return;
+   }
+  }
+ }catch(e){console.warn('Lokale Haltestellenliste noch nicht verfügbar',e)}
  nearbyResults.insertAdjacentHTML('beforeend','<p>Haltestellen-Daten werden geladen …</p>');
  const q=`[out:json][timeout:18];(node(around:1800,${lat},${lon})[highway=bus_stop];node(around:1800,${lat},${lon})[railway=station];node(around:1800,${lat},${lon})[railway=halt];node(around:1800,${lat},${lon})[public_transport=platform];);out body;`;
  let data, lastError;
