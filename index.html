@@ -195,7 +195,14 @@ $('liveSearch').addEventListener('click',async()=>{
   const fs=locate(from),ts=locate(to);
   let ids={};try{const ir=await fetch('./scotty-stops.json',{cache:'no-store'});if(ir.ok)ids=await ir.json()}catch(e){}
   const official=name=>{const q=normalize(name);return Object.values(ids).find(x=>normalize(x.name)===q&&x.id)||null};
-  const fi=official(from),ti=official(to);
+  const resolve=name=>{
+   const direct=official(name);
+   if(direct)return direct;
+   const q=normalize(name);
+   const matches=Object.values(ids).filter(x=>x.id&&(normalize(x.name).endsWith(' '+q)||normalize(x.name).startsWith(q+' ')));
+   return matches.length===1?matches[0]:null;
+  };
+  const fi=resolve(from),ti=resolve(to);
   if(!fi||!ti){
    status.textContent='Scotty-Kennungen für diese Strecke noch nicht verfügbar. Keine automatische Übergabe möglich.';
    out.innerHTML='<p>Die Haltestellen sind in unserer Karte vorhanden, aber Scotty benötigt eigene Kennungen. <a href="https://fahrplan.oebb.at/webapp/" target="_blank" rel="noopener">Scotty manuell öffnen</a>.</p>';
