@@ -81,7 +81,23 @@ body.area-active header h1{font-size:21px}
 .help-hit small{font-size:12px;color:#526276}.home-search .search-note{font-size:13px;color:#526276;margin:8px 0}
 .home-tile:focus-visible,.help-hit:focus-visible,.home-more>summary:focus-visible{outline:3px solid #f59e0b;outline-offset:3px}
 @media(max-width:370px){.home-grid{gap:9px}.home-grid>.home-tile{padding:12px 6px}.home-more-grid{gap:8px}}
-</style><header><h1>🧭 Vorarlberg MobilKompass</h1><p>Einfach planen. Clever sparen. Sicher fahren.</p></header><nav class="home-grid" id="home-menu" aria-label="Bereiche auswählen"><div class="home-intro"><strong>Was möchtest du heute machen?</strong><span>Wähle einfach deinen nächsten Schritt.</span></div><button type="button" class="home-tile" data-area="reise"><span class="tile-icon">🧭</span><strong>Reise planen</strong><small>Start &amp; Ziel</small></button>
+</style><style id="easy-mode-styles">
+.easy-mode-toggle{display:flex;align-items:center;justify-content:center;gap:9px;width:100%;margin-top:15px;padding:14px 16px;border:2px solid #dbeafe;border-radius:13px;background:#fff;color:#123b72;font-size:17px;font-weight:750;cursor:pointer}
+.easy-mode-toggle[aria-pressed="true"]{background:#fef3c7;color:#422006;border-color:#f59e0b}
+body.easy-mode{font-size:20px;line-height:1.65}
+body.easy-mode main{max-width:780px}
+body.easy-mode header h1{font-size:clamp(29px,6vw,38px)}
+body.easy-mode p,body.easy-mode li,body.easy-mode label,body.easy-mode summary,body.easy-mode .muted,body.easy-mode .small,body.easy-mode small,body.easy-mode .status{font-size:1.08em;line-height:1.7}
+body.easy-mode button,body.easy-mode select,body.easy-mode input,body.easy-mode a.help-hit{font-size:20px;min-height:54px;line-height:1.4}
+body.easy-mode .home-grid>.home-tile{min-height:160px;padding:20px 12px}
+body.easy-mode .home-grid>.home-tile strong{font-size:21px}
+body.easy-mode .home-more-grid{grid-template-columns:1fr}
+body.easy-mode .home-more-grid .home-tile{min-height:86px;padding:16px}
+body.easy-mode .home-more-grid .home-tile strong{font-size:20px}
+body.easy-mode section{padding:24px}
+body.easy-mode :is(button,a,input,select,summary):focus-visible{outline:4px solid #f59e0b;outline-offset:3px}
+@media(max-width:440px){body.easy-mode .home-grid{grid-template-columns:1fr}body.easy-mode .home-grid>.home-tile{min-height:100px}body.easy-mode .home-grid>.home-tile .tile-icon{font-size:34px}}
+</style><header><h1>🧭 Vorarlberg MobilKompass</h1><p>Einfach planen. Clever sparen. Sicher fahren.</p></header><button id="easyModeToggle" class="easy-mode-toggle" type="button" aria-pressed="false">🔎 Einfach-Modus einschalten</button><p id="easyModeInfo" class="muted" style="text-align:center;margin:7px 0 4px">Größere Schrift und Schaltflächen – jederzeit ausschaltbar.</p><nav class="home-grid" id="home-menu" aria-label="Bereiche auswählen"><div class="home-intro"><strong>Was möchtest du heute machen?</strong><span>Wähle einfach deinen nächsten Schritt.</span></div><button type="button" class="home-tile" data-area="reise"><span class="tile-icon">🧭</span><strong>Reise planen</strong><small>Start &amp; Ziel</small></button>
 <button type="button" class="home-tile" data-area="abfahrten"><span class="tile-icon">🚌</span><strong>Abfahrten</strong><small>ÖBB Scotty</small></button>
 <button type="button" class="home-tile" data-area="tarif"><span class="tile-icon">💶</span><strong>Tarif berechnen</strong><small>LOKAL · REGIO · MAXIMO</small></button>
 <button type="button" class="home-tile" data-area="stops"><span class="tile-icon">📍</span><strong>Haltestellen</strong><small>GPS &amp; Fußweg</small></button><div class="home-search" role="search"><label for="helpSearch">🔎 Hilfe &amp; Themen suchen</label><input id="helpSearch" type="search" placeholder="z. B. Rollator, Ticket, Kinderwagen"><div id="helpSearchResults" aria-live="polite"></div></div><details class="home-more"><summary>📚 Weitere Themen, Tipps &amp; Hilfe <span>Alle Angebote anzeigen</span></summary><div class="home-more-grid"><button type="button" class="home-tile" data-area="favoriten"><span class="tile-icon">⭐</span><strong>Favoriten</strong><small>Meine Strecken</small></button>
@@ -594,4 +610,4 @@ const norm=s=>String(s||'').toLocaleLowerCase('de-AT').normalize('NFD').replace(
 field.addEventListener('input',function(){results.replaceChildren();const q=norm(field.value);if(q.length<2)return;const found=topics.filter(x=>norm(x[1]+' '+x[2]+' '+(document.getElementById(({reise:'reiseassistent',abfahrten:'livefahrplan',stops:'nearby-area',zonen:'all-overlaps'})[x[0]]||x[0])?.textContent||'').slice(0,4000)).includes(q)).slice(0,7);
 if(!found.length){const p=document.createElement('p');p.className='search-note';p.textContent='Kein passendes Thema gefunden. Versuche ein anderes Wort.';results.append(p);return}
 found.forEach(x=>{const b=document.createElement('button');b.type='button';b.className='help-hit';b.dataset.area=x[0];b.textContent=x[1];results.append(b)})});
-})();</script>
+})();</script><script>(function(){const b=document.getElementById('easyModeToggle');if(!b)return;const apply=on=>{document.body.classList.toggle('easy-mode',on);b.setAttribute('aria-pressed',String(on));b.textContent=on?'✓ Einfach-Modus ausschalten':'🔎 Einfach-Modus einschalten';try{localStorage.setItem('mobilkompass-easy-mode',on?'1':'0')}catch(e){}};let enabled=false;try{enabled=localStorage.getItem('mobilkompass-easy-mode')==='1'}catch(e){}apply(enabled);b.addEventListener('click',()=>apply(!document.body.classList.contains('easy-mode')))})();</script>
