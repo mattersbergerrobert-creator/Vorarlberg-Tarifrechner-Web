@@ -1,0 +1,49 @@
+<!doctype html><html lang="de"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Ticketautomat-Hilfe</title><style>body{font:19px system-ui;background:#edf3fa;color:#17304d;margin:0}main{max-width:620px;margin:auto;padding:16px}header{background:#123b72;color:white;padding:22px;border-radius:16px}.card{background:white;padding:20px;border-radius:16px;margin:16px 0}label{display:block;font-weight:bold;margin:14px 0 6px}input{box-sizing:border-box;width:100%;padding:16px;border:2px solid #b8c9da;border-radius:12px;font-size:20px}button,a{display:block;box-sizing:border-box;width:100%;padding:16px;border:0;border-radius:12px;background:#123b72;color:white;font-size:19px;font-weight:bold;text-align:center;text-decoration:none;margin:12px 0}.secondary{background:#e7efff;color:#123b72}.result{background:#eff6ff;border-radius:12px;padding:15px;line-height:1.6}.warn{background:#fff1d5;border-radius:12px;padding:13px;font-size:16px;line-height:1.5}</style><main><header><h1>🎫 Ticketautomat-Hilfe</h1><p>Erst Start und Ziel, dann den Tarifbereich finden.</p></header><div class="card"><h2>1. Wohin fährst du?</h2><label for="start">Startort</label><input id="start" list="places" placeholder="z. B. Bregenz"><label for="goal">Zielort</label><input id="goal" list="places" placeholder="z. B. Hard"><datalist id="places"></datalist><button id="search">🔎 Tarifbereiche prüfen</button><div id="result" role="status"></div></div><div class="card"><h2>2. Ticketdauer wählen</h2><button class="secondary time" data-time="60 Minuten">60 Minuten</button><button class="secondary time" data-time="120 Minuten">120 Minuten</button><button class="secondary time" data-time="24 Stunden">24 Stunden</button><div class="result" id="timeResult">Bitte gewünschte Dauer wählen. Nicht jede Dauer wird für jeden Tarif angeboten.</div></div><div class="card"><h2>3. Am Automaten</h2><div class="result" id="steps">Bitte zuerst Start und Ziel eingeben.</div><p class="warn"><b>Wichtig:</b> Dies ist eine unverbindliche Orientierung. Die Ortslisten und Überlappungen bilden nicht alle Linienwege, Haltestellen und Tarifausnahmen ab. Die Gültigkeit, Ticketdauer und den Preis immer am Automaten bzw. bei VMOBIL prüfen.</p><a class="secondary" href="https://www.vmobil.at/de/tariffinder">Offiziellen VMOBIL-Tariffinder öffnen</a><a class="secondary" href="./">← Zurück zum MobilKompass</a></div></main><script>
+const groups={
+'1 Leiblachtal':`Bregenz,Eichenberg,Hohenweiler,Hörbranz,Lindau,Lochau,Möggers,Niederstaufen,Scheidegg,Weiler im Allgäu`,
+'2 Vorderwald':`Aach im Allgäu,Alberschwende,Andelsbuch,Bezau,Bildstein,Bizau,Bregenz,Buch,Doren,Dornbirn,Egg,Hittisau,Kennelbach,Krumbach,Langen bei Bregenz,Langenegg,Lauterach,Lingenau,Oberstaufen,Reuthe,Riefensberg,Scheidegg,Schwarzach,Schwarzenberg,Sibratsgfäll,Sulzberg,Weiler im Allgäu,Wolfurt`,
+'3 Hofsteig/Rheindelta':`Bildstein,Bregenz,Brugg,Buch,Bödele,Dornbirn,Ebnit,Fußach,Gaißau,Hard,Höchst,Kennelbach,Lauterach,Lustenau,Schwarzach,St. Margrethen,Wolfurt`,
+'4 Mittleres Rheintal':`Altach,Brugg,Bödele,Dornbirn,Ebnit,Götzis,Hohenems,Koblach,Kreiers Alp,Lustenau,Millrütte,Mäder,Schuttannen`,
+'5 Hinterwald':`Au,Bezau,Bizau,Damüls,Gurtis,Hochkrumbach,Lech am Arlberg,Mellau,Reuthe,Schnepfau,Schoppernau,Schröcken,Schönenbach,Steeg in Tirol,Warth,Zürs`,
+'6 Vorderland':`Altach,Batschuns,Brederis,Dafins,Damüls,Feldkirch,Fraxern,Göfis,Götzis,Innerlaterns,Klaus,Koblach,Laterns,Meiningen,Millrütte,Muntlix,Mäder,Rankweil,Röthis,Sulz,Viktorsberg,Weiler,Zwischenwasser,Übersaxen`,
+'7 Walgau/Großes Walsertal':`Amerlügen,Bings,Blons,Bludenz,Bludesch,Buchboden,Bürs,Damüls,Düns,Dünserberg,Faschina,Feldkirch,Fontanella,Frastanz,Gais,Gurtis,Laguzalpe,Ludesch,Marul,Nenzing,Nüziders,Raggal,Röns,Satteins,Schlins,Schnifis,Sonntag,St. Gerold,Stallehr,Thüringen,Thüringerberg,Älpele`,
+'8 Klostertal/Arlberg':`Bings,Bludenz,Braz,Bürs,Dalaas,Innerbraz,Klösterle,Langen am Arlberg,Lech am Arlberg,Nüziders,Rauz,St. Anton am Arlberg,St. Christoph,Stallehr,Stuben,Wald am Arlberg,Zürs`,
+'9 Montafon/Brandnertal':`Bartholomäberg,Bielerhöhe,Bings,Bludenz,Brand,Bürs,Bürserberg,Gargellen,Gaschurn,Innerberg,Kops Zeinisjoch,Latschau,Lorüns,Lünerseebahn,Nüziders,Partenen,Schruns,Silbertal,St. Anton im Montafon,St. Gallenkirch,Stallehr,Tschagguns,Vandans,Wirl`};
+const localAreas={
+ bregenz:`Bregenz,Lochau,Hörbranz,Langen bei Bregenz,Kennelbach,Lauterach,Wolfurt,Schwarzach,Hard,Fußach`,
+ alberschwende:`Alberschwende,Dornbirn,Bildstein,Buch,Egg,Andelsbuch,Schwarzenberg`,
+ dornbirn:`Dornbirn,Schwarzach,Wolfurt,Lauterach,Kennelbach,Lustenau,Hohenems,Alberschwende`,
+ feldkirch:`Feldkirch,Brederis,Meiningen,Klaus,Weiler,Sulz,Röthis,Zwischenwasser,Rankweil,Göfis,Frastanz,Satteins,Röns`,
+ hard:`Hard,Fußach,Höchst,Gaißau,Bregenz,Kennelbach,Lauterach,Wolfurt,Schwarzach,Lustenau,St. Margrethen`,
+ bildstein:`Bildstein,Buch,Alberschwende,Kennelbach,Lauterach,Wolfurt,Schwarzach`,
+ egg:`Egg,Andelsbuch,Schwarzenberg,Bezau,Bizau,Reuthe,Lingenau,Langenegg,Hittisau,Alberschwende`,
+ bezau:`Bezau,Bizau,Reuthe,Mellau,Schwarzenberg,Andelsbuch,Egg`,
+ gofis:`Göfis,Feldkirch,Rankweil,Zwischenwasser,Sulz,Röthis,Klaus,Weiler,Frastanz,Satteins,Röns`,
+ frastanz:`Frastanz,Satteins,Göfis,Feldkirch,Röns,Düns,Schnifis,Schlins,Nenzing,Bludesch`,
+ gotzis:`Götzis,Koblach,Mäder,Altach,Hohenems,Meiningen,Brederis,Klaus,Weiler,Sulz,Röthis,Zwischenwasser,Rankweil`,
+ hohenems:`Hohenems,Dornbirn,Lustenau,Altach,Mäder,Koblach,Götzis`,
+ bludenz:`Bludenz,Nüziders,Ludesch,Thüringen,Bludesch,Bürs,Bürserberg,Stallehr,Innerbraz,Lorüns,St. Anton im Montafon,Vandans`,
+ hoechst:`Höchst,Gaißau,Fußach,Lustenau,Hard,St. Margrethen`,
+ au:`Au,Schoppernau,Schnepfau`,
+ bartholomaberg:`Bartholomäberg,Schruns,Tschagguns,St. Anton im Montafon,Lorüns,Vandans`,
+ blons:`Blons,St. Gerold,Thüringerberg,Sonntag,Raggal`,
+ brand:`Brand,Bürserberg`,
+ dalaas:`Dalaas,Klösterle,Innerbraz`,
+ damuls:`Damüls,Fontanella,Laterns`,
+ doren:`Doren,Sulzberg,Langen bei Bregenz,Krumbach,Riefensberg`,
+ dunserberg:`Dünserberg,Düns,Schnifis,Röns`,
+ eichenberg:`Eichenberg,Möggers,Scheidegg,Lochau,Hörbranz`,
+ fontanella:`Fontanella,Damüls,Sonntag`,
+ fraxern:`Fraxern,Klaus,Weiler,Sulz,Röthis,Rankweil,Zwischenwasser`,
+ gaschurn:`Gaschurn,St. Gallenkirch`,
+ hohenweiler:`Hohenweiler,Niederstaufen,Möggers,Scheidegg,Hörbranz,Lochau`,
+ innerbraz:`Innerbraz,Stallehr,Bludenz,Bürs,Nüziders,Dalaas`
+};
+const norm=s=>s.toLocaleLowerCase('de').normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim();
+const entries=Object.entries(groups).map(([key,v])=>({key,places:v.split(',').map(x=>x.trim())}));const all=[...new Set(entries.flatMap(x=>x.places))].sort((a,b)=>a.localeCompare(b,'de'));
+const esc=s=>s.replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;');
+document.getElementById('places').innerHTML=all.map(x=>'<option value="'+esc(x)+'">').join('');
+let duration='',selection=null;
+function calculate(){const a=all.find(x=>norm(x)===norm(document.getElementById('start').value)),b=all.find(x=>norm(x)===norm(document.getElementById('goal').value));if(!a||!b){selection=null;document.getElementById('result').innerHTML='<p class="warn">Bitte zwei Orte aus den Vorschlägen auswählen. Unbekannte Orte nicht schätzen.</p>';return}const common=entries.filter(e=>e.places.some(p=>norm(p)===norm(a))&&e.places.some(p=>norm(p)===norm(b))).map(e=>e.key);const local=Object.entries(localAreas).filter(([k,v])=>{const p=v.split(',').map(norm);return p.includes(norm(a))&&p.includes(norm(b))}).map(([k])=>k);selection={a,b,common,local};document.getElementById('result').innerHTML='<div class="result"><b>'+esc(a)+' → '+esc(b)+'</b><p><b>LOKAL:</b> '+(local.length?'Mögliche Gebiete: '+local.map(esc).join(', '):'Kein gemeinsames Gebiet erkannt')+'</p><p><b>REGIO:</b> '+(common.length?'Gemeinsame Bereiche: '+common.map(esc).join(' · '):'Kein gemeinsamer Bereich erkannt')+'</p><p><b>MAXIMO:</b> als weitere Option prüfen.</p></div>';document.getElementById('steps').innerHTML='<b>Am Automaten prüfen:</b><ol>'+(local.length?'<li>LOKAL, wenn die konkrete Fahrt dort gültig ist.</li>':'')+(common.length?'<li>REGIO, wenn der ganze Fahrweg im gemeinsamen Bereich liegt.</li>':'')+'<li>Sonst MAXIMO oder offiziellen Tariffinder prüfen.</li><li>Ticketdauer und Preis kontrollieren.</li></ol>'+(duration?'<p>Gewünschte Dauer: <b>'+esc(duration)+'</b> (Verfügbarkeit prüfen)</p>':'')}
+document.getElementById('search').addEventListener('click',calculate);document.querySelectorAll('.time').forEach(b=>b.addEventListener('click',()=>{duration=b.dataset.time;document.getElementById('timeResult').textContent='Gewünscht: '+duration+' – bitte am Automaten auf Verfügbarkeit prüfen.';if(selection)calculate()}));
+</script></html>
